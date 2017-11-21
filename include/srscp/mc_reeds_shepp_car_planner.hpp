@@ -13,6 +13,7 @@
 #include <ompl/geometric/planners/sst/SST.h>
 
 #include <mrpt/math/CPolygon.h>
+#include <nav_msgs/OccupancyGrid.h>
 
 namespace mm = mrpt::maps;
 namespace ob = ompl::base;
@@ -38,6 +39,10 @@ public:
   MultipleCirclesReedsSheppCarPlanner(const char *mapFileName,
                                       double mapResolution, double robotRadius,
                                       const mrpt::math::CPolygon &footprint);
+  MultipleCirclesReedsSheppCarPlanner(
+      const nav_msgs::OccupancyGridConstPtr &occ_map_ptr, double robotRadius,
+      const mrpt::math::CPolygon &footprint);
+
   ~MultipleCirclesReedsSheppCarPlanner() {}
 
   bool plan(const State &startState, const State &goalState,

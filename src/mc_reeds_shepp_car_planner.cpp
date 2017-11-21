@@ -21,6 +21,53 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
   robot_radius_ = robotRadius;
 }
 
+MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
+    const nav_msgs::OccupancyGridConstPtr &occ_map_ptr, double robotRadius,
+    const mrpt::math::CPolygon &footprint) {
+
+  grid_map_.setSize(
+      occ_map_ptr->info.origin.position.x,
+      occ_map_ptr->info.origin.position.x +
+          (occ_map_ptr->info.width * occ_map_ptr->info.resolution),
+      occ_map_ptr->info.origin.position.y,
+      occ_map_ptr->info.origin.position.y +
+          (occ_map_ptr->info.height * occ_map_ptr->info.resolution),
+      occ_map_ptr->info.resolution);
+
+  // std::cout << "X: " << grid_map_.getXMin() << std::endl
+  //           << "Y: " << grid_map_.getYMin() << std::endl
+  //           << "Resolution: " << grid_map_.getResolution() << std::endl
+  //           << "XMax: " << grid_map_.getXMax() << std::endl
+  //           << "YMax: " << grid_map_.getYMax() << std::endl;
+
+  for (int h = 0; h < occ_map_ptr->info.height; h++) {
+    for (int w = 0; w < occ_map_ptr->info.width; w++) {
+      float value = -1.0f;
+      const int8_t &occ_map_value =
+          occ_map_ptr->data[w + h * occ_map_ptr->info.width];
+      if (occ_map_value <= 100 || occ_map_value >= 0) {
+        value = 1.0f - (float)occ_map_value / 100.0f;
+      } else if (occ_map_value == -1) {
+        value = -1.0f;
+      } else {
+        std::cerr << "[ERROR]: Converting nav_msgs::OccupancyGrid to "
+                     "mrpt::maps::COccupancyGridMap2D. Saw an unknown value in "
+                     "data: "
+                  << occ_map_value << "\n";
+      }
+      grid_map_.setCell(w, h, value);
+    }
+  }
+
+  //grid_map_.saveAsBitmapFile("ok.png");
+
+  // Initialize footprint points
+  footprint.getAllVertices(x_coords_, y_coords_);
+
+  //
+  robot_radius_ = robotRadius;
+}
+
 bool MultipleCirclesReedsSheppCarPlanner::plan(const State &startState,
                                                const State &goalState,
                                                double distanceBetweenPathPoints,
@@ -53,15 +100,16 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(const State &startState,
 
   // set state validity checking for this space
   ob::SpaceInformationPtr si(ss.getSpaceInformation());
-  if (!grid_map_.isEmpty()) {
-    si->setStateValidityChecker(
-        ob::StateValidityCheckerPtr(new MultipleCircleStateValidityChecker(
-            si, grid_map_, robot_radius_, x_coords_, y_coords_)));
+  // if (!grid_map_.isEmpty()) {
+  si->setStateValidityChecker(
+      ob::StateValidityCheckerPtr(new MultipleCircleStateValidityChecker(
+          si, grid_map_, robot_radius_, x_coords_, y_coords_)));
 
-  } else {
-    // si->setStateValidityChecker(ob::StateValidityCheckerPtr(
-    //     new MultipleCircleStateValidityChecker(si)));
-  }
+  //} else {
+  // si->setStateValidityChecker(ob::StateValidityCheckerPtr(
+  //     new MultipleCircleStateValidityChecker(si)));
+  // std::cout << "No validity checker!" << std::endl;
+  //}
 
   ob::PlannerPtr planner(new og::RRTConnect(si));
   // ob::PlannerPtr planner(new og::RRTstar(si));

@@ -12,6 +12,12 @@
 #include <ompl/geometric/planners/rrt/pRRT.h>
 #include <ompl/geometric/planners/sst/SST.h>
 
+#include <ompl/control/spaces/RealVectorControlSpace.h>
+#include <ompl/control/planners/rrt/RRT.h>
+#include <ompl/control/SimpleSetup.h>
+#include <ompl/control/SpaceInformation.h>
+
+
 #include <mrpt/math/CPolygon.h>
 #include <nav_msgs/OccupancyGrid.h>
 

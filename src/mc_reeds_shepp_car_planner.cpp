@@ -12,9 +12,29 @@ void propagate(const ob::State *start, const oc::Control *control,
   result->as<ob::SE2StateSpace::StateType>()->setXY(
       pos[0] + ctrl[0] * duration * cos(rot),
       pos[1] + ctrl[0] * duration * sin(rot));
-  result->as<ob::SE2StateSpace::StateType>()->setYaw(
-      rot + (ctrl[0] * tan(ctrl[1]) * duration));
+  // result->as<ob::SE2StateSpace::StateType>()->setYaw(
+  //     rot + (ctrl[0] * tan(ctrl[1]) * duration));
+  result->as<ob::SE2StateSpace::StateType>()->setYaw(rot +
+                                                     (ctrl[1] * duration));
 }
+
+class MyDecomposition : public oc::GridDecomposition {
+public:
+  MyDecomposition(const int length, const ob::RealVectorBounds &bounds)
+      : GridDecomposition(length, 2, bounds) {}
+  void project(const ob::State *s, std::vector<double> &coord) const override {
+    coord.resize(2);
+    coord[0] = s->as<ob::SE2StateSpace::StateType>()->getX();
+    coord[1] = s->as<ob::SE2StateSpace::StateType>()->getY();
+  }
+
+  void sampleFullState(const ob::StateSamplerPtr &sampler,
+                       const std::vector<double> &coord,
+                       ob::State *s) const override {
+    sampler->sampleUniform(s);
+    s->as<ob::SE2StateSpace::StateType>()->setXY(coord[0], coord[1]);
+  }
+};
 
 namespace srscp {
 
@@ -137,8 +157,11 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(const State &startState,
   auto pdef(std::make_shared<ob::ProblemDefinition>(si));
   pdef->setStartAndGoalStates(start, goal);
 
+  auto decomp(std::make_shared<MyDecomposition>(64, cbounds));
+
   // Choose the planner.
-  auto planner(std::make_shared<oc::RRT>(si));
+  auto planner(std::make_shared<oc::SyclopRRT>(si, decomp));
+  // auto planner(std::make_shared<oc::RRT>(si));
   planner->setProblemDefinition(pdef);
   planner->setup();
   si->printSettings(std::cout);

@@ -37,7 +37,7 @@ int main(int argn, char *args[]) {
   srscp::MultipleCirclesReedsSheppCarPlanner planner(occ_map, 0.25, footprint);
 
   std::vector<srscp::State> path;
-  planner.plan({2.0, 2.0, 0.0}, {6.0, 2.0, 0.0}, 0.4, 2.0, path);
+  planner.plan({2.0, 2.0, 0.0}, {6.6, 9.4, 3.14}, 0.4, 2.0, path);
 
   geometry_msgs::PoseArray poses;
   poses.header.frame_id = "map";

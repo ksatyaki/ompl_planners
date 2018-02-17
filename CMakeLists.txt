@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.9)
 project (srscp)
 
+set(MRPT_DONT_USE_DBG_LIBS 1)
+
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_FLAGS "-m64")
 SET(CMAKE_C_FLAGS "-m64")

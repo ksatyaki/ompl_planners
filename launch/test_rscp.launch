@@ -1,5 +1,12 @@
 <?xml version="1.0"?>
 <launch>
+  
   <node name="map_server" pkg="map_server" type="map_server" args="$(find srscp)/maps/map1.yaml"/>
-  <node name="rviz" pkg="rviz" type="rviz"/>
+  
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find srscp)/launch/srscp.rviz"/>
+  
+  <node name="srscp" type="test_rscp_ros" pkg="srscp">
+    <remap from="goal" to="move_base_simple/goal"/>
+  </node>
+  
 </launch>

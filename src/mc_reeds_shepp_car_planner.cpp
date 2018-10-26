@@ -1,47 +1,10 @@
 #include <srscp/mc_reeds_shepp_car_planner.hpp>
 
-void propagate(const ob::State *start, const oc::Control *control,
-               const double duration, ob::State *result) {
-  const auto *se2state = start->as<ob::SE2StateSpace::StateType>();
-  const double *pos =
-      se2state->as<ob::RealVectorStateSpace::StateType>(0)->values;
-  const double rot = se2state->as<ob::SO2StateSpace::StateType>(1)->value;
-  const double *ctrl =
-      control->as<oc::RealVectorControlSpace::ControlType>()->values;
-
-  result->as<ob::SE2StateSpace::StateType>()->setXY(
-      pos[0] + ctrl[0] * duration * cos(rot),
-      pos[1] + ctrl[0] * duration * sin(rot));
-  // result->as<ob::SE2StateSpace::StateType>()->setYaw(
-  //     rot + (ctrl[0] * tan(ctrl[1]) * duration));
-  result->as<ob::SE2StateSpace::StateType>()->setYaw(rot +
-                                                     (ctrl[1] * duration));
-}
-
-class MyDecomposition : public oc::GridDecomposition {
-public:
-  MyDecomposition(const int length, const ob::RealVectorBounds &bounds)
-      : GridDecomposition(length, 2, bounds) {}
-  void project(const ob::State *s, std::vector<double> &coord) const override {
-    coord.resize(2);
-    coord[0] = s->as<ob::SE2StateSpace::StateType>()->getX();
-    coord[1] = s->as<ob::SE2StateSpace::StateType>()->getY();
-  }
-
-  void sampleFullState(const ob::StateSamplerPtr &sampler,
-                       const std::vector<double> &coord,
-                       ob::State *s) const override {
-    sampler->sampleUniform(s);
-    s->as<ob::SE2StateSpace::StateType>()->setXY(coord[0], coord[1]);
-  }
-};
-
 namespace srscp {
 
 MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
     const char *mapFileName, double mapResolution, double robotRadius,
     const mrpt::math::CPolygon &footprint) {
-
   if (mapFileName != NULL) {
     grid_map_.loadFromBitmapFile(mapFileName, (float)mapResolution, 0.0f, 0.0f);
     std::cout << "Loaded map (1) " << mapFileName << std::endl;
@@ -59,8 +22,8 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
 
 MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
     const nav_msgs::OccupancyGridConstPtr &occ_map_ptr, double robotRadius,
-    const mrpt::math::CPolygon &footprint) {
-
+    const mrpt::math::CPolygon &footprint)
+    : no_map_(false) {
   grid_map_.setSize(
       occ_map_ptr->info.origin.position.x,
       occ_map_ptr->info.origin.position.x +
@@ -109,15 +72,8 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(const State &startState,
                                                double distanceBetweenPathPoints,
                                                double turningRadius,
                                                std::vector<State> &path) {
-
   double pLen = 0.0;
   ob::StateSpacePtr space(new ob::ReedsSheppStateSpace(turningRadius));
-  auto cspace(std::make_shared<oc::RealVectorControlSpace>(space, 2));
-
-  ob::RealVectorBounds cbounds(2);
-  cbounds.setLow(-0.3);
-  cbounds.setHigh(0.3);
-  cspace->setBounds(cbounds);
 
   ob::ScopedState<> start(space), goal(space);
   ob::RealVectorBounds bounds(2);
@@ -133,18 +89,22 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(const State &startState,
     bounds.high[1] = 10000;
   }
 
+  og::SimpleSetup ss(space);
+
   space->as<ob::SE2StateSpace>()->setBounds(bounds);
   std::cout << "Bounds are [(" << bounds.low[0] << "," << bounds.low[1] << "),("
             << bounds.high[0] << "," << bounds.high[1] << ")]" << std::endl;
 
-  // set state validity checking for this space
-  auto si(std::make_shared<oc::SpaceInformation>(space, cspace));
-  // if (!grid_map_.isEmpty()) {
+  // State Validity Checker
+  ob::SpaceInformationPtr si(ss.getSpaceInformation());
   si->setStateValidityChecker(
       ob::StateValidityCheckerPtr(new MultipleCircleStateValidityChecker(
           si, grid_map_, robot_radius_, x_coords_, y_coords_)));
 
-  si->setStatePropagator(propagate);
+  // Choose the planner.
+  auto planner(std::make_shared<og::RRTstar>(si));
+
+  ss.setPlanner(planner);
 
   // set the start and goal states
   start[0] = startState.x;
@@ -153,35 +113,30 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(const State &startState,
   goal[0] = goalState.x;
   goal[1] = goalState.y;
   goal[2] = goalState.theta;
+  ss.setStartAndGoalStates(start, goal);
 
-  auto pdef(std::make_shared<ob::ProblemDefinition>(si));
-  pdef->setStartAndGoalStates(start, goal);
+  ss.getSpaceInformation()->setStateValidityCheckingResolution(0.005);
+  ss.setup();
+  ss.print();
 
-  auto decomp(std::make_shared<MyDecomposition>(64, cbounds));
+  ob::OptimizationObjectivePtr a(new ob::MaximizeMinClearanceObjective(si));
 
-  // Choose the planner.
-  auto planner(std::make_shared<oc::SyclopRRT>(si, decomp));
-  // auto planner(std::make_shared<oc::RRT>(si));
-  planner->setProblemDefinition(pdef);
-  planner->setup();
-  si->printSettings(std::cout);
-  pdef->print(std::cout);
+  ss.setOptimizationObjective(a);
 
   // this call is optional, but we put it in to get more output information
   //  ss.getSpaceInformation()->setStateValidityCheckingResolution(0.005);
   // attempt to solve the problem within 30 seconds of planning time
-  ob::PlannerStatus solved = planner->ob::Planner::solve(30.0);
+  ob::PlannerStatus solved = planner->ob::Planner::solve(10.0);
 
   if (solved) {
     std::cout << "Found solution:" << std::endl;
-    // ss.simplifySolution();
-    ob::PathPtr pth = pdef->getSolutionPath();
-    pLen = pth->length();
-    //    numInterpolationPoints = ((double)pLen) / distanceBetweenPathPoints;
-    //    if (numInterpolationPoints > 0)
-    //  pth.interpolate(numInterpolationPoints);
+    ss.simplifySolution();
+    og::PathGeometric pth = ss.getSolutionPath();
+    pLen = pth.length();
+    int numInterpolationPoints = ((double)pLen) / distanceBetweenPathPoints;
+    if (numInterpolationPoints > 0) pth.interpolate(numInterpolationPoints);
 
-    std::vector<ob::State *> states = pth->as<og::PathGeometric>()->getStates();
+    std::vector<ob::State *> states = pth.getStates();
     std::vector<double> reals;
 
     path.resize(states.size());
@@ -198,4 +153,4 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(const State &startState,
   std::cout << "No solution found" << std::endl;
   return 0;
 }
-}
+}  // namespace srscp

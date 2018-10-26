@@ -2,20 +2,48 @@
 #include <nav_msgs/GetMap.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Path.h>
+#include <ros/console.h>
 #include <ros/ros.h>
+#include <boost/function.hpp>
 
-#include "srscp/mc_reeds_shepp_car_planner.hpp"
 #include <mrpt/math/CPolygon.h>
+#include "srscp/mc_reeds_shepp_car_planner.hpp"
 
-int main(int argn, char *args[]) {
+void callback_fn(const geometry_msgs::PoseStampedConstPtr& goal,
+                 srscp::MultipleCirclesReedsSheppCarPlanner& planner,
+                 std::vector<srscp::State>& path,
+                 geometry_msgs::PoseArrayPtr& poses) {
+  planner.plan({2.0, 2.0, 0.0},
+               {goal->pose.position.x, goal->pose.position.y,
+                2 * atan2(goal->pose.orientation.z, goal->pose.orientation.w)},
+               0.1, 0.5, path);
 
+  std::cout << std::endl;
+  ROS_INFO_STREAM("\x1b[34m"
+                  << "Planning Complete!");
+  std::cout << std::endl;
+
+  ROS_INFO("%d points", path.size());
+
+  for (auto p : path) {
+    geometry_msgs::Pose pose;
+    pose.position.x = p.x;
+    pose.position.y = p.y;
+    pose.orientation.z = sin(p.theta / 2);
+    pose.orientation.w = cos(p.theta / 2);
+    poses->poses.push_back(pose);
+  }
+  return;
+};
+
+int main(int argn, char* args[]) {
   ros::init(argn, args, "rscp_node");
   ros::NodeHandle nh;
 
   ros::Publisher path_pub = nh.advertise<geometry_msgs::PoseArray>("/path", 1);
 
   ros::ServiceClient map_client =
-      nh.serviceClient<nav_msgs::GetMap>("/map_server/static_map");
+      nh.serviceClient<nav_msgs::GetMap>("static_map");
   map_client.waitForExistence();
   nav_msgs::GetMap get_map_;
   if (!map_client.call(get_map_)) {
@@ -37,25 +65,19 @@ int main(int argn, char *args[]) {
   srscp::MultipleCirclesReedsSheppCarPlanner planner(occ_map, 0.25, footprint);
 
   std::vector<srscp::State> path;
-  planner.plan({2.0, 2.0, 0.0}, {6.6, 9.4, 3.14}, 0.4, 2.0, path);
 
-  geometry_msgs::PoseArray poses;
-  poses.header.frame_id = "map";
-  poses.header.stamp = ros::Time::now();
-  for (auto p : path) {
-    geometry_msgs::Pose pose;
-    pose.position.x = p.x;
-    pose.position.y = p.y;
-    pose.orientation.z = sin(p.theta / 2);
-    pose.orientation.w = cos(p.theta / 2);
-    poses.poses.push_back(pose);
-  }
+  geometry_msgs::PoseArrayPtr poses = geometry_msgs::PoseArrayPtr(new geometry_msgs::PoseArray);
+  poses->header.frame_id = "map";
+  poses->header.stamp = ros::Time::now();
 
-  path_pub.publish(poses);
+  ros::Subscriber goalSub = nh.subscribe<geometry_msgs::PoseStamped>(
+      "goal", 1, boost::bind(&callback_fn, _1, planner, path, poses));
 
+  ros::Rate rate(5);
   while (ros::ok()) {
     ros::spinOnce();
-    path_pub.publish(poses);
+    rate.sleep();
+    if (not poses->poses.empty()) path_pub.publish(poses);
   }
 
   return 0;

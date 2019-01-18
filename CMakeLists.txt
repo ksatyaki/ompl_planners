@@ -35,9 +35,6 @@ add_library(srscp SHARED src/mc_reeds_shepp_car_planner.cpp src/mc_state_validit
 target_link_libraries(srscp ${OMPL_LIBRARIES} ${MRPT_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(srscp ${catkin_EXPORTED_TARGETS})
 
-add_executable(test_rscp tests/test_rscp.cpp)
-target_link_libraries(test_rscp srscp ${catkin_LIBRARIES})
-
 add_executable(test_rscp_ros tests/test_rscp_ros.cpp)
 target_link_libraries(test_rscp_ros srscp ${catkin_LIBRARIES})
 

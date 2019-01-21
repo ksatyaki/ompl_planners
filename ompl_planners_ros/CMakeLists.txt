@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.9)
-project (srscp)
+project (ompl_planners_ros)
 
 set(MRPT_DONT_USE_DBG_LIBS 1)
 
@@ -22,21 +22,21 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${OMPL_INCLUDE_DIRS}
   ${MRPT_INCLUDE_DIRS}
-  )
+)
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES srscp
+  LIBRARIES ompl_planners_ros
   CATKIN_DEPENDS roscpp nav_msgs 
   DEPENDS OMPL MRPT
 )
 
-add_library(srscp SHARED src/mc_reeds_shepp_car_planner.cpp src/mc_state_validity_checker.cpp)
-target_link_libraries(srscp ${OMPL_LIBRARIES} ${MRPT_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(srscp ${catkin_EXPORTED_TARGETS})
+add_library(ompl_planners_ros SHARED src/mc_reeds_shepp_car_planner.cpp src/mc_state_validity_checker.cpp)
+target_link_libraries(ompl_planners_ros ${OMPL_LIBRARIES} ${MRPT_LIBRARIES} ${catkin_LIBRARIES})
+add_dependencies(ompl_planners_ros ${catkin_EXPORTED_TARGETS})
 
 add_executable(test_rscp_ros tests/test_rscp_ros.cpp)
-target_link_libraries(test_rscp_ros srscp ${catkin_LIBRARIES})
+target_link_libraries(test_rscp_ros ompl_planners_ros ${catkin_LIBRARIES})
 
 # #Use "sudo make install" to apply
 # install(TARGETS simplereedssheppcarplanner DESTINATION /usr/local/lib)

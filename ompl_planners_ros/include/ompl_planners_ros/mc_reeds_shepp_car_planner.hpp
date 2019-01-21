@@ -1,4 +1,4 @@
-#include "srscp/mc_state_validity_checker.hpp"
+#include "ompl_planners_ros/mc_state_validity_checker.hpp"
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/shared_ptr.hpp>
@@ -15,7 +15,7 @@ namespace mm = mrpt::maps;
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
-namespace srscp {
+namespace ompl_planners_ros {
 
 struct State {
 	double x;

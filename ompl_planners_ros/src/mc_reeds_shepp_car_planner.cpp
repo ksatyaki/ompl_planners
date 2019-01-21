@@ -1,6 +1,6 @@
-#include <srscp/mc_reeds_shepp_car_planner.hpp>
+#include <ompl_planners_ros/mc_reeds_shepp_car_planner.hpp>
 
-namespace srscp {
+namespace ompl_planners_ros {
 
 MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
 		const char *mapFileName, double mapResolution, double robotRadius,
@@ -151,4 +151,4 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(const State &startState,
 	std::cout << "WARNING: No solution found" << std::endl;
 	return 0;
 }
-}  // namespace srscp
+}  // namespace ompl_planners_ros

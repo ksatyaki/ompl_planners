@@ -10,11 +10,11 @@
 #include <boost/function.hpp>
 #include <mrpt/math/CPolygon.h>
 
-#include "srscp/mc_reeds_shepp_car_planner.hpp"
+#include "ompl_planners_ros/mc_reeds_shepp_car_planner.hpp"
 
 void callback_fn(const geometry_msgs::PoseStampedConstPtr& goal,
-                 srscp::MultipleCirclesReedsSheppCarPlanner& planner,
-                 std::vector<srscp::State>& path,
+                 ompl_planners_ros::MultipleCirclesReedsSheppCarPlanner& planner,
+                 std::vector<ompl_planners_ros::State>& path,
                  geometry_msgs::PoseArrayPtr& poses) {
   planner.plan({2.0, 2.0, 0.0},
                {goal->pose.position.x, goal->pose.position.y,
@@ -37,7 +37,7 @@ void callback_fn(const geometry_msgs::PoseStampedConstPtr& goal,
   return;
 }
 
-void saveGraphCallback(const std_msgs::EmptyConstPtr& empty, srscp::MultipleCirclesReedsSheppCarPlanner& planner) {
+void saveGraphCallback(const std_msgs::EmptyConstPtr& empty, ompl_planners_ros::MultipleCirclesReedsSheppCarPlanner& planner) {
 	ompl::base::PlannerData data(planner.ss->getSpaceInformation());
 	planner.ss->getPlanner()->getPlannerData(data);
 	std::fstream file_stream("/home/ksatyaki/graph.xml", std::ios_base::out);
@@ -67,14 +67,14 @@ int main(int argn, char* args[]) {
   footprint.AddVertex(-0.5, 0.5);
   footprint.AddVertex(-0.5, -0.5);
 
-  // srscp::MultipleCirclesReedsSheppCarPlanner planner(args[1],
+  // ompl_planners_ros::MultipleCirclesReedsSheppCarPlanner planner(args[1],
   // std::atof(args[2]), 0.25, footprint);
   nav_msgs::OccupancyGridPtr occ_map =
       nav_msgs::OccupancyGridPtr(new nav_msgs::OccupancyGrid);
   *occ_map = get_map_.response.map;
-  srscp::MultipleCirclesReedsSheppCarPlanner planner(occ_map, 0.25, footprint, 0.25);
+  ompl_planners_ros::MultipleCirclesReedsSheppCarPlanner planner(occ_map, 0.25, footprint, 0.25);
 
-  std::vector<srscp::State> path;
+  std::vector<ompl_planners_ros::State> path;
 
   geometry_msgs::PoseArrayPtr poses = geometry_msgs::PoseArrayPtr(new geometry_msgs::PoseArray);
   poses->header.frame_id = "map";

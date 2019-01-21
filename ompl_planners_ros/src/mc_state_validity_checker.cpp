@@ -1,4 +1,4 @@
-#include "srscp/mc_state_validity_checker.hpp"
+#include "ompl_planners_ros/mc_state_validity_checker.hpp"
 
 bool MultipleCircleStateValidityChecker::isValid(const ob::State *state) const {
   if (!no_map_) {

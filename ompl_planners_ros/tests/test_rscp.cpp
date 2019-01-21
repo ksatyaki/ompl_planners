@@ -1,4 +1,4 @@
-#include "srscp/mc_reeds_shepp_car_planner.hpp"
+#include "ompl_planners_ros/mc_reeds_shepp_car_planner.hpp"
 
 #include <mrpt/math/CPolygon.h>
 
@@ -10,9 +10,9 @@ int main(int argn, char* args[]) {
   footprint.AddVertex(-0.5,0.5);
   footprint.AddVertex(-0.5,-0.5);
 
-  srscp::MultipleCirclesReedsSheppCarPlanner planner(args[1], std::atof(args[2]), 0.25, footprint);
+  ompl_planners_ros::MultipleCirclesReedsSheppCarPlanner planner(args[1], std::atof(args[2]), 0.25, footprint);
 
-  std::vector <srscp::State> path;
+  std::vector <ompl_planners_ros::State> path;
   planner.plan({2.0, 2.0, 0.0}, {2.0, 38.0, 0.0}, 0.4, 2.0, path);
 
   for(auto p : path) {

@@ -9,6 +9,8 @@ namespace mm = mrpt::maps;
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
+namespace ompl_planners_ros {
+
 class MultipleCircleStateValidityChecker : public ob::StateValidityChecker {
 public:
   mm::COccupancyGridMap2D &grid_map_;
@@ -35,3 +37,5 @@ public:
 
   virtual bool isValid(const ob::State *state) const;
 };
+  
+}

@@ -34,6 +34,7 @@ public:
   //   no_map_ = true;
   //   std::cout << "Using empty map for validity checking" << std::endl;
   // }
+  virtual ~MultipleCircleStateValidityChecker(){}
 
   virtual bool isValid(const ob::State *state) const;
 };

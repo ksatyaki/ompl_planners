@@ -1,5 +1,6 @@
 #include "ompl_planners_ros/mc_state_validity_checker.hpp"
 
+namespace ompl_planners_ros {
 bool MultipleCircleStateValidityChecker::isValid(const ob::State *state) const {
   if (!no_map_) {
     const ob::SE2StateSpace::StateType *s =
@@ -20,4 +21,5 @@ bool MultipleCircleStateValidityChecker::isValid(const ob::State *state) const {
     }
   }
   return true;
+}
 }

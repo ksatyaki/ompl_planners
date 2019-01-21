@@ -31,12 +31,12 @@ catkin_package(
   DEPENDS OMPL MRPT
 )
 
-add_library(ompl_planners_ros SHARED src/mc_reeds_shepp_car_planner.cpp src/mc_state_validity_checker.cpp)
+add_library(ompl_planners_ros SHARED src/ompl_planners_ros/mc_reeds_shepp_car_planner.cpp src/ompl_planners_ros/mc_state_validity_checker.cpp)
 target_link_libraries(ompl_planners_ros ${OMPL_LIBRARIES} ${MRPT_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(ompl_planners_ros ${catkin_EXPORTED_TARGETS})
 
-add_executable(test_rscp_ros tests/test_rscp_ros.cpp)
-target_link_libraries(test_rscp_ros ompl_planners_ros ${catkin_LIBRARIES})
+add_executable(car_planner_ros_node src/car_planner_ros_node.cpp)
+target_link_libraries(car_planner_ros_node ompl_planners_ros ${catkin_LIBRARIES})
 
 # #Use "sudo make install" to apply
 # install(TARGETS simplereedssheppcarplanner DESTINATION /usr/local/lib)

@@ -15,8 +15,8 @@ class MultipleCircleStateValidityChecker: public ob::StateValidityChecker {
 public:
   mm::COccupancyGridMap2D &grid_map_;
   double radius_;
-  std::vector<double> &x_coords_;
-  std::vector<double> &y_coords_;
+  std::vector<double> x_coords_;
+  std::vector<double> y_coords_;
   bool no_map_;
 
   MultipleCircleStateValidityChecker(const ob::SpaceInformationPtr &si,

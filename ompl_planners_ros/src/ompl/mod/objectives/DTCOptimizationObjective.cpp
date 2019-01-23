@@ -1,4 +1,3 @@
-#include <Eigen/Core>
 #include <memory>
 
 #include "ompl/mod/objectives/DTCOptimizationObjective.h"
@@ -30,20 +29,20 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
   std::array<double, 3> state_curr = getStateAsArray(s2);
 
   double dot = cos(state_curr[2] / 2.0) * cos(state_prev[2] / 2.0) +
-               sin(state_curr[2] / 2.0 * sin(state_prev[2] / 2.0));
+               sin(state_curr[2] / 2.0) * sin(state_prev[2] / 2.0);
 
   // 2. Compute the quaternion distance.
   double q_dist = pow(1.0 - fabs(dot), 2);
 
   // Total distance for now.
   // TODO: Weight should be a parameter.
-  double distance_cost = sqrt(this_distance_sq) + 10.0 * sqrt(q_dist);
+  double distance_cost = weight_d * sqrt(this_distance_sq) + weight_q * sqrt(q_dist);
 
   double cliffcost = 0.0;
   Eigen::Vector2d V;
   V[0] = state_curr[2];
   // TODO: make the intended speed a parameters.
-  V[1] = 1.0;  // sqrt(this_distance_sq) / this_time;
+  V[1] = max_vehicle_speed;
 
   double x = state_curr[0];
   double y = state_curr[1];
@@ -86,7 +85,8 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
     }
   }
 
-  return distance_cost + (cliffcost / 5.0);
+  // TODO: Make the weight a parameter.
+  return ompl::base::Cost(distance_cost + (cliffcost * weight_c));
 }
 
 ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCostHeuristic(

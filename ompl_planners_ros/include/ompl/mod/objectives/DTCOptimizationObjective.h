@@ -1,15 +1,23 @@
 #include <array>
 #include <functional>
+#include <Eigen/Dense>
+
+#include <cliffmap_ros/cliffmap.hpp>
 
 #include "ompl/base/OptimizationObjective.h"
 
-#include <cliffmap_ros/cliffmap.hpp>
 
 namespace ompl {
 
 namespace mod {
 
 class DTCOptimizationObjective : public ompl::base::OptimizationObjective {
+
+  double weight_d;
+  double weight_c;
+  double weight_q;
+  double max_vehicle_speed;
+
   std::function<std::array<double,3>(const ompl::base::State *)> getStateAsArray;
 
   std::shared_ptr<cliffmap_ros::CLiFFMap> cliffmap;
@@ -25,6 +33,13 @@ class DTCOptimizationObjective : public ompl::base::OptimizationObjective {
     std::cout
         << ("Read a cliffmap XML organized as a grid @ %lf m/cell resolution.",
             cliffmap->getResolution());
+  }
+
+  inline void initDTCWeights(float wd, float wq, float wc, float maxvs) {
+    this->weight_c = wc;
+    this->weight_d = wd;
+    this->weight_q = wq;
+    this->max_vehicle_speed = maxvs;
   }
   void setGetStateAsArrayFunction(
       std::function<std::array<double,3>(const ompl::base::State *)> func) {

@@ -1,13 +1,13 @@
 #include "ompl_planners_ros/mc_state_validity_checker.hpp"
+#include "ompl/mod/objectives/DTCOptimizationObjective.h"
 
 #include <boost/math/constants/constants.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
 
 #include <ompl/geometric/planners/rrt/RRTstar.h>
-#include <ompl/base/objectives/MaximizeMinClearanceObjective.h>
 
 #include <mrpt/math/CPolygon.h>
+
+#include <geometry_msgs/PoseArray.h>
 #include <nav_msgs/OccupancyGrid.h>
 
 namespace mm = mrpt::maps;
@@ -16,32 +16,43 @@ namespace og = ompl::geometric;
 
 namespace ompl_planners_ros {
 
-struct State {
-  double x;
-  double y;
-  double theta;
+struct PlannerParameters {
+  double weight_d{1.0};
+  double weight_q{1.0};
+  double weight_c{0.0};
+  double planning_time{5.0};
+  double path_resolution{0.25};
+  std::string cliffmap_filename;
+};
+
+struct VehicleParameters {
+  mrpt::math::CPolygon footprint;
+  double turning_radius{0.5};
+  double max_vehicle_speed{1.0};
+  double inflation_radius{0.25};
 };
 
 class MultipleCirclesReedsSheppCarPlanner {
   mm::COccupancyGridMap2D grid_map_;
-  std::vector<double> x_coords_;
-  std::vector<double> y_coords_;
   bool no_map_;
-  double robot_radius_;
 
-public:
+  PlannerParameters planner_params_;
+  VehicleParameters vehicle_params_;
+
+  std::string cliffmap_filename;
+
+ public:
   boost::shared_ptr<og::SimpleSetup> ss;
-  MultipleCirclesReedsSheppCarPlanner(const char *mapFileName,
-      double mapResolution, double robotRadius,
-      const mrpt::math::CPolygon &footprint);
+
   MultipleCirclesReedsSheppCarPlanner(
-      const nav_msgs::OccupancyGridConstPtr &occ_map_ptr, double robotRadius,
-      const mrpt::math::CPolygon &footprint, double turningRadius);
+      const PlannerParameters &planner_params,
+      const VehicleParameters &vehicle_params,
+      const nav_msgs::OccupancyGridConstPtr &occ_map_ptr);
 
-  ~MultipleCirclesReedsSheppCarPlanner() {
-  }
+  ~MultipleCirclesReedsSheppCarPlanner() {}
 
-  bool plan(const State &startState, const State &goalState,
-      std::vector<State> &path, double distanceBetweenPathPoints = 0.5);
+  bool plan(const geometry_msgs::Pose &startState,
+            const geometry_msgs::Pose &goalState,
+            geometry_msgs::PoseArray *path);
 };
 }

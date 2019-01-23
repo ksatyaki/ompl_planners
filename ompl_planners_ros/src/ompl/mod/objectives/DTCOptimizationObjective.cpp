@@ -1,12 +1,12 @@
-#include <memory>
 #include <Eigen/Core>
+#include <memory>
 
 #include "ompl/mod/objectives/DTCOptimizationObjective.h"
 
 ompl::mod::DTCOptimizationObjective::DTCOptimizationObjective(
     const ompl::base::SpaceInformationPtr &si)
     : ompl::base::OptimizationObjective(si) {
-  description_ = "Path Length";
+  description_ = "DownTheCLiFF Cost";
 
   // Setup a default cost-to-go heuristics:
   setCostToGoHeuristic(ompl::base::goalRegionCostToGo);
@@ -22,8 +22,18 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
   // 1. Compute distance between the previous and current state.
   double this_distance_sq = si_->distance(s1, s2);
 
+  if (!getStateAsArray) {
+    std::cerr << "You should set-up a function to get the State as an array "
+                 "before you start planning.\n";
+  }
+  std::array<double, 3> state_prev = getStateAsArray(s1);
+  std::array<double, 3> state_curr = getStateAsArray(s2);
+
+  double dot = cos(state_curr[2] / 2.0) * cos(state_prev[2] / 2.0) +
+               sin(state_curr[2] / 2.0 * sin(state_prev[2] / 2.0));
+
   // 2. Compute the quaternion distance.
-  double q_dist = pow(1.0 - fabs(quaternionDistance(s1, s2)), 2);
+  double q_dist = pow(1.0 - fabs(dot), 2);
 
   // Total distance for now.
   // TODO: Weight should be a parameter.
@@ -31,12 +41,12 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
 
   double cliffcost = 0.0;
   Eigen::Vector2d V;
-  V[0] = state_curr->state_vars[2];
+  V[0] = state_curr[2];
   // TODO: make the intended speed a parameters.
   V[1] = 1.0;  // sqrt(this_distance_sq) / this_time;
 
-  double x = state_curr->state_vars[0];
-  double y = state_curr->state_vars[1];
+  double x = state_curr[0];
+  double y = state_curr[1];
   double trust = (*cliffmap)(x, y).p * (*cliffmap)(x, y).q;
   for (const auto &dist : (*cliffmap)(x, y).distributions) {
     Eigen::Matrix2d Sigma;
@@ -75,14 +85,8 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
       std::cout << "SHIT!" << std::endl;
     }
   }
-  // 3. Add the cliffcost
-  if (only_distance_cost) {
-    total_cost = total_cost + distance_cost;
-  } else {
-    total_cost = total_cost + distance_cost + (cliffcost / 5.0);
-  }
 
-  return total_cost;
+  return distance_cost + (cliffcost / 5.0);
 }
 
 ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCostHeuristic(

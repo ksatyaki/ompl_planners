@@ -129,8 +129,7 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(const State &startState,
     og::PathGeometric pth = ss->getSolutionPath();
     pLen = pth.length();
     int numInterpolationPoints = ((double) pLen) / distanceBetweenPathPoints;
-    if (numInterpolationPoints > 0)
-      pth.interpolate(numInterpolationPoints);
+    if (numInterpolationPoints > 0) pth.interpolate(numInterpolationPoints);
 
     std::vector<ob::State *> states = pth.getStates();
     std::vector<double> reals;

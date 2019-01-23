@@ -8,11 +8,13 @@
   <license>GPLv3</license>
 
   <buildtool_depend>catkin</buildtool_depend>
+  
   <build_depend>roscpp</build_depend>
   <build_depend>nav_msgs</build_depend>
+  <build_depend>cliffmap_ros</build_depend>
   
+  <run_depend>cliffmap_ros</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>nav_msgs</run_depend>
-  <export>
-  </export>
+  
 </package>

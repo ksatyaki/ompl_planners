@@ -14,7 +14,7 @@ SET(CMAKE_SHARED_LINKER_FLAGS "-m64")
 find_package(OMPL REQUIRED)
 find_package(MRPT REQUIRED)
 find_package(catkin REQUIRED
-  COMPONENTS roscpp nav_msgs
+  COMPONENTS roscpp nav_msgs cliffmap_ros
 )
 
 include_directories(
@@ -27,7 +27,7 @@ include_directories(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ompl_planners_ros
-  CATKIN_DEPENDS roscpp nav_msgs 
+  CATKIN_DEPENDS roscpp nav_msgs cliffmap_ros
   DEPENDS OMPL MRPT
 )
 

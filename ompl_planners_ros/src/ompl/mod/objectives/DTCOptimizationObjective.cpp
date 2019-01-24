@@ -46,8 +46,10 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
 
   double x = state_curr[0];
   double y = state_curr[1];
-  double trust = (*cliffmap)(x, y).p * (*cliffmap)(x, y).q;
-  for (const auto &dist : (*cliffmap)(x, y).distributions) {
+  cliffmap_ros::CLiFFMapLocation& cl = (*cliffmap)(x,y);
+  double trust = cl.p * cl.q;
+
+  for (const auto &dist : cl.distributions) {
     Eigen::Matrix2d Sigma;
     std::array<double, 4> sigma_array = dist.getCovariance();
     Sigma(0, 0) = sigma_array[0];

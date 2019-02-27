@@ -1,14 +1,16 @@
-#include "ompl/mod/objectives/DTCOptimizationObjective.h"
-#include "ompl_planners_ros/mc_state_validity_checker.hpp"
+#pragma once
 
-#include <boost/math/constants/constants.hpp>
-
-#include <ompl/geometric/planners/rrt/RRTstar.h>
 
 #include <mrpt/math/CPolygon.h>
 
+#include "ompl_planners_ros/mc_state_validity_checker.hpp"
+#include "ompl_planners_ros/visualization.hpp"
+
 #include <geometry_msgs/PoseArray.h>
 #include <nav_msgs/OccupancyGrid.h>
+
+#include <ompl/geometric/planners/rrt/RRTstar.h>
+#include "ompl/mod/objectives/DTCOptimizationObjective.h"
 
 namespace mm = mrpt::maps;
 namespace ob = ompl::base;
@@ -85,6 +87,8 @@ struct VehicleParameters {
  */
 class MultipleCirclesReedsSheppCarPlanner {
 
+  ompl_planners_ros::Visualization viz;
+
   /**
    * Occupancy gridmap used for collision checking.
    */
@@ -106,7 +110,6 @@ class MultipleCirclesReedsSheppCarPlanner {
   VehicleParameters vehicle_params_;
 
  public:
-
   /**
    * OMPL simple setup.
    */

@@ -14,7 +14,12 @@ set(CMAKE_SHARED_LINKER_FLAGS "-m64")
 find_package(OMPL REQUIRED)
 find_package(MRPT REQUIRED)
 find_package(catkin REQUIRED
-  COMPONENTS roscpp nav_msgs cliffmap_ros costmap_2d
+  COMPONENTS 
+  roscpp 
+  nav_msgs 
+  cliffmap_ros 
+  costmap_2d
+  visualization_msgs
 )
 
 include_directories(
@@ -27,7 +32,7 @@ include_directories(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ompl_planners_ros
-  CATKIN_DEPENDS roscpp nav_msgs cliffmap_ros costmap_2d
+  CATKIN_DEPENDS roscpp nav_msgs cliffmap_ros costmap_2d visualization_msgs
   DEPENDS OMPL MRPT
 )
 
@@ -36,6 +41,7 @@ add_library(ompl_planners_ros
   src/ompl_planners_ros/mc_reeds_shepp_car_planner.cpp 
   src/ompl_planners_ros/mc_state_validity_checker.cpp
   src/ompl/mod/objectives/DTCOptimizationObjective.cpp
+  src/ompl_planners_ros/visualization.cpp
 )
 
 target_link_libraries(ompl_planners_ros

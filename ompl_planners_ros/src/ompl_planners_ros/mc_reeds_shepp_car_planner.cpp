@@ -108,6 +108,9 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
 bool MultipleCirclesReedsSheppCarPlanner::plan(
     const geometry_msgs::Pose &startState, const geometry_msgs::Pose &goalState,
     geometry_msgs::PoseArray *path) {
+  ss->clearStartStates();
+  ss->clear();
+
   double pLen = 0.0;
 
   ob::ScopedState<> start(ss->getSpaceInformation()->getStateSpace()),
@@ -127,6 +130,7 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
   printf("\n\x1b[34mStart state: (%lf, %lf %lf)", start[0], start[1], start[2]);
   printf("\n\x1b[34mGoal state: (%lf, %lf %lf)", goal[0], goal[1], goal[2]);
   printf("\n\x1b[34m*************************************************");
+  fflush(stdout);
 
   ob::PlannerStatus solved =
       ss->getPlanner()->solve(planner_params_.planning_time);
@@ -153,8 +157,13 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
       path->poses[i].orientation.z = sin(reals[2] / 2);
       path->poses[i].orientation.w = cos(reals[2] / 2);
     }
-    ss->clearStartStates();
-    ss->clear();
+
+    // if(visualize_) {
+    ompl::base::PlannerData data(ss->getSpaceInformation());
+    ss->getPlanner()->getPlannerData(data);
+    viz.publishPlanningGraph(data);
+    // }
+
     return 1;
   }
   std::cout << "WARNING: No solution found" << std::endl;

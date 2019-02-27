@@ -46,7 +46,7 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
 
   double x = state_curr[0];
   double y = state_curr[1];
-  cliffmap_ros::CLiFFMapLocation& cl = (*cliffmap)(x,y);
+  const cliffmap_ros::CLiFFMapLocation& cl = (*cliffmap)(x,y);
   double trust = cl.p * cl.q;
 
   for (const auto &dist : cl.distributions) {

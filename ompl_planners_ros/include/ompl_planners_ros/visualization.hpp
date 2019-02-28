@@ -19,7 +19,8 @@
 #pragma once
 
 #include <ompl/base/PlannerData.h>
-#include <ompl/base/spaces/RealVectorStateSpace.h>
+#include <ompl/base/spaces/ReedsSheppStateSpace.h>
+#include <ompl/geometric/PathGeometric.h>
 
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>

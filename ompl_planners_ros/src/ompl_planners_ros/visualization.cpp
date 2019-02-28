@@ -37,11 +37,11 @@ void Visualization::publishPlanningGraph(const ompl::base::PlannerData &pData) {
   marker.pose.orientation.z = 0.0;
   marker.pose.orientation.w = 1.0;
 
-  marker.scale.x = 0.1;
+  marker.scale.x = 0.005;
 
   // TODO: Customizable?
   marker.color.r = 0.2;
-  marker.color.g = 0.9;
+  marker.color.g = 0.6;
   marker.color.b = 0.2;
   marker.color.a = 1.0;
 
@@ -90,13 +90,12 @@ geometry_msgs::Point Visualization::stateToPointMsg(
   }
 
   // Convert to RealVectorStateSpace
-  const ompl::base::RealVectorStateSpace::StateType *real_state =
-      static_cast<const ompl::base::RealVectorStateSpace::StateType *>(state);
+  auto real_state = state->as<ompl::base::ReedsSheppStateSpace::StateType>();
 
   geometry_msgs::Point temp_point;
   // Create point
-  temp_point.x = real_state->values[0];
-  temp_point.y = real_state->values[1];
+  temp_point.x = real_state->getX();
+  temp_point.y = real_state->getY();
   temp_point.z = 0.0;
   return temp_point;
 }
@@ -121,13 +120,6 @@ bool Visualization::interpolateLine(const geometry_msgs::Point &p1,
     point_b = point_temp;
   }
 
-  // Add the point pair to the line message
-  marker->points.push_back(point_a);
-  marker->points.push_back(point_b);
-  marker->colors.push_back(color);
-  marker->colors.push_back(color);
-  return true;
-
   // Show start and end point
   // Interpolate the line
 
@@ -138,7 +130,7 @@ bool Visualization::interpolateLine(const geometry_msgs::Point &p1,
   double b = point_a.y - m * point_a.x;
 
   // Define the interpolation interval
-  double interval = 0.1;
+  double interval = 0.01;
 
   // Make new locations
   geometry_msgs::Point temp_a = point_a;  // remember the last point

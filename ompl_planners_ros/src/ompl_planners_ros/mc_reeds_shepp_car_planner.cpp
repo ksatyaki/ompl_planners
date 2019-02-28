@@ -1,3 +1,21 @@
+/*
+ *   Copyright (c) Chittaranjan Srinivas Swaminathan
+ *   This file is part of ompl_planners_ros.
+ *
+ *   ompl_planners_ros is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   ompl_planners_ros is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with ompl_planners_ros.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <ompl_planners_ros/mc_reeds_shepp_car_planner.hpp>
 
 std::array<double, 3> getState(const ompl::base::State *s) {
@@ -111,6 +129,10 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
   ss->clearStartStates();
   ss->clear();
 
+  ompl::mod::DTCOptimizationObjective *tmp_ptr =
+      dynamic_cast<ompl::mod::DTCOptimizationObjective *>(
+          ss->getOptimizationObjective().get());
+  viz.publishMarkers(tmp_ptr->getMA());
   double pLen = 0.0;
 
   ob::ScopedState<> start(ss->getSpaceInformation()->getStateSpace()),
@@ -158,11 +180,12 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
       path->poses[i].orientation.w = cos(reals[2] / 2);
     }
 
-    // if(visualize_) {
-    ompl::base::PlannerData data(ss->getSpaceInformation());
-    ss->getPlanner()->getPlannerData(data);
-    viz.publishPlanningGraph(data);
-    // }
+    if (this->planner_params_.publish_viz_markers) {
+      ompl::base::PlannerData data(ss->getSpaceInformation());
+      ss->getPlanner()->getPlannerData(data);
+      viz.publishPlanningGraph(data);
+      viz.publishSolutionPath(pth);
+    }
 
     return 1;
   }

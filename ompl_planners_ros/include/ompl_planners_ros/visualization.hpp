@@ -35,13 +35,7 @@ class Visualization {
 
   geometry_msgs::Point stateToPointMsg(const ompl::base::State* state);
 
-  geometry_msgs::Point stateToPointMsg(
-      int vertex_id, const ompl::base::PlannerData& planner_data);
-
-  bool interpolateLine(const geometry_msgs::Point& p1,
-                       const geometry_msgs::Point& p2,
-                       visualization_msgs::Marker* marker,
-                       const std_msgs::ColorRGBA color);
+  void setMarkerCommonProperties(visualization_msgs::Marker* marker);
 
  public:
   Visualization() {
@@ -52,7 +46,13 @@ class Visualization {
 
   virtual ~Visualization() {}
 
+  void publishMarkers(const visualization_msgs::MarkerArray& msg) {
+    markers_pub_.publish(msg);
+  }
+
   void publishPlanningGraph(const ompl::base::PlannerData& pData);
+
+  void publishSolutionPath(ompl::geometric::PathGeometric& sPath);
 };
 
 } /* namespace ompl_planners_ros */

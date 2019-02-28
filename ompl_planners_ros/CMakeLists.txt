@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.9)
 project (ompl_planners_ros)
 
+set(CMAKE_BUILD_TYPE Debug)
 set(MRPT_DONT_USE_DBG_LIBS 1)
 
 set(CMAKE_CXX_STANDARD 14)

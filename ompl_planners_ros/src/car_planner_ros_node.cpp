@@ -1,3 +1,21 @@
+/*
+ *   Copyright (c) Chittaranjan Srinivas Swaminathan
+ *   This file is part of ompl_planners_ros.
+ *
+ *   ompl_planners_ros is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   ompl_planners_ros is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with ompl_planners_ros.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <ros/console.h>
 #include <ros/ros.h>
 
@@ -25,6 +43,7 @@ class CarPlannerROSNode {
   ros::Publisher path_pub;
   ros::ServiceClient map_client;
 
+  geometry_msgs::PosePtr start_pose;
   geometry_msgs::PoseArrayPtr poses_ptr;
   boost::shared_ptr<ompl_planners_ros::MultipleCirclesReedsSheppCarPlanner>
       planner;
@@ -50,6 +69,8 @@ class CarPlannerROSNode {
     nh.getParam("planner/planning_time", pp.planning_time);
     nh.getParam("planner/path_resolution", pp.path_resolution);
     nh.getParam("planner/cliffmap_filename", pp.cliffmap_filename);
+    nh.getParam("planner/publish_viz_markers", pp.publish_viz_markers);
+
     nh.getParam("vehile/inflation_radius", vp.inflation_radius);
     nh.getParam("vehicle/turning_radius", vp.turning_radius);
 
@@ -67,6 +88,8 @@ class CarPlannerROSNode {
                    << "*** wd: " << pp.weight_d << std::endl
                    << "*** wq: " << pp.weight_q << std::endl
                    << "*** wc: " << pp.weight_c << std::endl
+                   << "*** Publish viz markers? " << pp.publish_viz_markers
+                   << std::endl
                    << "*** Planning time: " << pp.planning_time << std::endl
                    << "*** Path resolution: " << pp.path_resolution << std::endl
                    << "*** Cliffmap file: " << pp.cliffmap_filename << std::endl
@@ -82,32 +105,46 @@ class CarPlannerROSNode {
     planner = boost::make_shared<
         ompl_planners_ros::MultipleCirclesReedsSheppCarPlanner>(pp, vp,
                                                                 occ_map);
+    //planner->ss->getProblemDefinition()->setIntermediateSolutionCallback(
+    //    boost::bind(&CarPlannerROSNode::solutionCallback, this, _1, _2, _3));
   }
 
   virtual ~CarPlannerROSNode(){};
 
+  void solutionCallback(
+      const ompl::base::Planner* planner,
+      const std::vector<const ompl::base::State*>& solution_states,
+      const ompl::base::Cost cost) {
+    ROS_INFO_STREAM("\x1b[34m"
+                    << "New solution found with cost: " << cost.value());
+  }
+
+  void callback_fn2(const geometry_msgs::PoseStampedConstPtr& start) {
+    start_pose = geometry_msgs::PosePtr(new geometry_msgs::Pose);
+    *start_pose = start->pose;
+  }
+
   void callback_fn(const geometry_msgs::PoseStampedConstPtr& goal) {
-    geometry_msgs::Pose startPose;
-    startPose.position.x = 2.5;
-    startPose.position.y = 9.0;
-    startPose.orientation.w = cos(-M_PI / 4);
-    startPose.orientation.z = sin(-M_PI / 4);
+    if (!start_pose) {
+      ROS_INFO_STREAM("\x1b[93mUse RViz to select the start pose first.");
+      return;
+    }
 
     poses_ptr.reset();
     poses_ptr = geometry_msgs::PoseArrayPtr(new geometry_msgs::PoseArray);
     poses_ptr->header.frame_id = "map";
     poses_ptr->header.stamp = ros::Time::now();
 
-    planner->plan(startPose, goal->pose, poses_ptr.get());
+    planner->plan(*start_pose, goal->pose, poses_ptr.get());
 
     std::cout << std::endl;
     ROS_INFO_STREAM("\x1b[34m[CALLBACK]: PLANNING COMPLETE!");
+    ROS_INFO_STREAM(
+        "\x1b[34m[CALLBACK]: Cost: " << planner->ss->getPlanner()
+                                            ->as<ompl::geometric::RRTstar>()
+                                            ->getBestCost());
     std::cout << std::endl;
     fflush(stdout);
-
-    // Publish visualization of path
-    // TODO: Move this to the visualization files.
-    path_pub.publish(poses_ptr);
 
     return;
   }
@@ -121,6 +158,9 @@ int main(int argn, char* args[]) {
 
   ros::Subscriber goalSub = nhandle.subscribe<geometry_msgs::PoseStamped>(
       "goal", 1, &CarPlannerROSNode::callback_fn, &cprn);
+
+  ros::Subscriber startSub = nhandle.subscribe<geometry_msgs::PoseStamped>(
+      "start", 1, &CarPlannerROSNode::callback_fn2, &cprn);
 
   ros::spin();
 

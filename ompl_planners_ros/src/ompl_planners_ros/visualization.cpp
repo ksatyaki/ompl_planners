@@ -1,58 +1,48 @@
 /*
- * visualization.cpp
+ *   Copyright (c) Chittaranjan Srinivas Swaminathan
+ *   This file is part of ompl_planners_ros.
  *
- *  Created on: Feb 26, 2019
- *      Author: ksatyaki
+ *   ompl_planners_ros is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   ompl_planners_ros is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with ompl_planners_ros.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ompl_planners_ros/visualization.hpp>
 
 namespace ompl_planners_ros {
 
+void Visualization::publishSolutionPath(ompl::geometric::PathGeometric &sPath) {
+  visualization_msgs::MarkerArray markers;
+  visualization_msgs::Marker m;
+  setMarkerCommonProperties(&m);
+  m.color.r = 0.2;
+  m.color.g = 0.9;
+  m.color.b = 0.0;
+  m.scale.x = 0.02;
+  for (const auto &state : sPath.getStates()) {
+    m.points.push_back(stateToPointMsg(state));
+    m.colors.push_back(m.color);
+  }
+  markers.markers.push_back(m);
+  markers_pub_.publish(markers);
+}
+
 void Visualization::publishPlanningGraph(const ompl::base::PlannerData &pData) {
-  visualization_msgs::Marker marker;
-  // Set the frame ID and timestamp.  See the TF tutorials for information on
-  // these.
-  marker.header.frame_id = "map";
-  marker.header.stamp = ros::Time::now();
+  visualization_msgs::MarkerArray markers;
 
-  // Set the namespace and id for this marker.  This serves to create a unique
-  // ID TODO: Make this customizable?
-  marker.ns = "planning_graph";
-
-  // Set the marker type.
-  marker.type = visualization_msgs::Marker::LINE_LIST;
-
-  // Set the marker action.  Options are ADD and DELETE
-  marker.action = visualization_msgs::Marker::ADD;
-  marker.id = 0;
-  marker.lifetime = ros::Duration(60.0);
-
-  marker.pose.position.x = 0.0;
-  marker.pose.position.y = 0.0;
-  marker.pose.position.z = 0.0;
-
-  marker.pose.orientation.x = 0.0;
-  marker.pose.orientation.y = 0.0;
-  marker.pose.orientation.z = 0.0;
-  marker.pose.orientation.w = 1.0;
-
-  marker.scale.x = 0.005;
-
-  // TODO: Customizable?
-  marker.color.r = 0.2;
-  marker.color.g = 0.6;
-  marker.color.b = 0.2;
-  marker.color.a = 1.0;
-
-  geometry_msgs::Point this_vertex;
-  geometry_msgs::Point next_vertex;
-
+  int index = 0;
   // Loop through all verticies
   for (std::size_t vertex_id = 0; vertex_id < pData.numVertices();
        ++vertex_id) {
-    this_vertex = this->stateToPointMsg(vertex_id, pData);
-
     // Get the out edges from the current vertex
     std::vector<unsigned int> edge_list;
     pData.getEdges(vertex_id, edge_list);
@@ -60,26 +50,51 @@ void Visualization::publishPlanningGraph(const ompl::base::PlannerData &pData) {
     // Now loop through each edge
     for (std::vector<unsigned int>::const_iterator edge_it = edge_list.begin();
          edge_it != edge_list.end(); ++edge_it) {
-      // Convert vertex id to next coordinates
-      next_vertex = stateToPointMsg(*edge_it, pData);
+      ompl::geometric::PathGeometric segment(
+          pData.getSpaceInformation(), pData.getVertex(vertex_id).getState(),
+          pData.getVertex(*edge_it).getState());
+      segment.interpolate(segment.length() / 0.05);
 
-      interpolateLine(this_vertex, next_vertex, &marker, marker.color);
+      visualization_msgs::Marker marker;
+      setMarkerCommonProperties(&marker);
+      marker.id = index++;
+      for (const auto &state : segment.getStates()) {
+        marker.points.push_back(stateToPointMsg(state));
+        marker.colors.push_back(marker.color);
+      }
+      markers.markers.push_back(marker);
     }
   }
-
-  // Send to Rviz
-  // Maybe this node will publish more than one tree?
-  // Make the set of markers global
-  visualization_msgs::MarkerArray markers;
-  markers.markers.push_back(marker);
   markers_pub_.publish(markers);
 }
 
-geometry_msgs::Point Visualization::stateToPointMsg(
-    int vertex_id, const ompl::base::PlannerData &planner_data) {
-  const ompl::base::PlannerDataVertex *vertex =
-      &planner_data.getVertex(vertex_id);
-  return stateToPointMsg(vertex->getState());
+void Visualization::setMarkerCommonProperties(
+    visualization_msgs::Marker *marker) {
+
+  marker->header.frame_id = "map";
+  marker->header.stamp = ros::Time::now();
+  marker->ns = "planning_graph";
+  marker->type = visualization_msgs::Marker::LINE_STRIP;
+  marker->action = visualization_msgs::Marker::ADD;
+  marker->lifetime = ros::Duration();
+
+  marker->pose.position.x = 0.0;
+  marker->pose.position.y = 0.0;
+  marker->pose.position.z = 0.0;
+
+  marker->pose.orientation.x = 0.0;
+  marker->pose.orientation.y = 0.0;
+  marker->pose.orientation.z = 0.0;
+  marker->pose.orientation.w = 1.0;
+
+  marker->scale.x = 0.005;
+  marker->scale.y = 0.005;
+
+  // TODO: Customizable?
+  marker->color.r = 0.3;
+  marker->color.g = 0.3;
+  marker->color.b = 0.6;
+  marker->color.a = 1.0;
 }
 
 geometry_msgs::Point Visualization::stateToPointMsg(
@@ -98,75 +113,6 @@ geometry_msgs::Point Visualization::stateToPointMsg(
   temp_point.y = real_state->getY();
   temp_point.z = 0.0;
   return temp_point;
-}
-
-bool Visualization::interpolateLine(const geometry_msgs::Point &p1,
-                                    const geometry_msgs::Point &p2,
-                                    visualization_msgs::Marker *marker,
-                                    const std_msgs::ColorRGBA color) {
-  // Copy to non-const
-  geometry_msgs::Point point_a = p1;
-  geometry_msgs::Point point_b = p2;
-
-  // Get the heights
-  point_a.z = 0.0;
-  point_b.z = 0.0;
-
-  // Switch the coordinates such that x1 < x2
-  if (point_a.x > point_b.x) {
-    // Swap the coordinates
-    geometry_msgs::Point point_temp = point_a;
-    point_a = point_b;
-    point_b = point_temp;
-  }
-
-  // Show start and end point
-  // Interpolate the line
-
-  // Calculate slope between the lines
-  double m = (point_b.y - point_a.y) / (point_b.x - point_a.x);
-
-  // Calculate the y-intercep
-  double b = point_a.y - m * point_a.x;
-
-  // Define the interpolation interval
-  double interval = 0.01;
-
-  // Make new locations
-  geometry_msgs::Point temp_a = point_a;  // remember the last point
-  geometry_msgs::Point temp_b = point_a;  // move along this point
-
-  // Loop through the line adding segements along the cost map
-  for (temp_b.x = point_a.x + interval; temp_b.x <= point_b.x;
-       temp_b.x += interval) {
-    // publishSphere(temp_b, color2);
-
-    // Find the y coordinate
-    temp_b.y = m * temp_b.x + b;
-
-    // Add the new heights
-    temp_a.z = 0.0;
-    temp_b.z = 0.0;
-
-    // Add the point pair to the line message
-    marker->points.push_back(temp_a);
-    marker->points.push_back(temp_b);
-    // Add colors
-    marker->colors.push_back(color);
-    marker->colors.push_back(color);
-
-    // Remember the last coordiante for next iteration
-    temp_a = temp_b;
-  }
-
-  // Finish the line for non-even interval lengths
-  marker->points.push_back(temp_a);
-  marker->points.push_back(point_b);
-  // Add colors
-  marker->colors.push_back(color);
-  marker->colors.push_back(color);
-
-  return true;
 }
 
 } /* namespace ompl_planners_ros */

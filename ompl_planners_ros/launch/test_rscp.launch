@@ -16,6 +16,7 @@
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ompl_planners_ros)/launch/srscp.rviz"/>
   <node name="DownTheCLiFFPlanner" type="car_planner_ros_node" pkg="ompl_planners_ros" launch-prefix="$(arg launch_prefix)">
     <remap from="goal" to="move_base_simple/goal"/>
+    <remap from="start" to="move_base_simple/start"/>
   </node>
   
 </launch>

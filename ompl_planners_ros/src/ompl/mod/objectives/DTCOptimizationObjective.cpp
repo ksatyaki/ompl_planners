@@ -2,6 +2,8 @@
 
 #include "ompl/mod/objectives/DTCOptimizationObjective.h"
 
+#include <ros/console.h>
+
 ompl::mod::DTCOptimizationObjective::DTCOptimizationObjective(
     const ompl::base::SpaceInformationPtr &si)
     : ompl::base::OptimizationObjective(si) {
@@ -13,13 +15,13 @@ ompl::mod::DTCOptimizationObjective::DTCOptimizationObjective(
 
 ompl::base::Cost ompl::mod::DTCOptimizationObjective::stateCost(
     const ompl::base::State *s) const {
-  return identityCost();
+  return ompl::base::Cost(0.);
 }
 
 ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
     const ompl::base::State *s1, const ompl::base::State *s2) const {
   // 1. Compute distance between the previous and current state.
-  double this_distance_sq = si_->distance(s1, s2);
+  double this_distance = si_->distance(s1, s2);
 
   if (!getStateAsArray) {
     std::cerr << "You should set-up a function to get the State as an array "
@@ -32,21 +34,20 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
                sin(state_curr[2] / 2.0) * sin(state_prev[2] / 2.0);
 
   // 2. Compute the quaternion distance.
-  double q_dist = pow(1.0 - fabs(dot), 2);
+  double q_dist = 1.0 - fabs(dot);
 
   // Total distance for now.
   // TODO: Weight should be a parameter.
-  double distance_cost = weight_d * sqrt(this_distance_sq) + weight_q * sqrt(q_dist);
+  double distance_cost = weight_d * this_distance + weight_q * q_dist;
 
   double cliffcost = 0.0;
   Eigen::Vector2d V;
   V[0] = state_curr[2];
-  // TODO: make the intended speed a parameters.
   V[1] = max_vehicle_speed;
 
   double x = state_curr[0];
   double y = state_curr[1];
-  const cliffmap_ros::CLiFFMapLocation& cl = (*cliffmap)(x,y);
+  const cliffmap_ros::CLiFFMapLocation &cl = (*cliffmap)(x, y);
   double trust = cl.p * cl.q;
 
   for (const auto &dist : cl.distributions) {
@@ -70,8 +71,6 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
     if (inc_cost < 0.0) {
       printf("WHAT THE HOLY?!");
     }
-    // if (inc_cost > 10000.00)
-    //  inc_cost = 10000.00f;
 
     cliffcost += inc_cost;
 
@@ -87,7 +86,6 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
     }
   }
 
-  // TODO: Make the weight a parameter.
   return ompl::base::Cost(distance_cost + (cliffcost * weight_c));
 }
 

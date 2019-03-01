@@ -87,6 +87,9 @@ class DTCOptimizationObjective : public ompl::base::OptimizationObjective {
 
   ompl::base::Cost motionCostHeuristic(
       const ompl::base::State *s1, const ompl::base::State *s2) const override;
+
+  double motionCostly(const ompl::base::State *s1,
+                      const ompl::base::State *s2) const;
 };
 }
 }

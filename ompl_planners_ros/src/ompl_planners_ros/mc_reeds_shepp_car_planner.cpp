@@ -113,6 +113,7 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
   ss->setOptimizationObjective(DTCCostObjective);
   // Choose the planner.
   auto planner(boost::make_shared<og::RRTstar>(si));
+  planner->setRange(10.0);
   ss->setPlanner(planner);
 
   ss->setup();
@@ -144,10 +145,10 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
   goal[2] = atan2(goalState.orientation.z, goalState.orientation.w);
   ss->setStartAndGoalStates(start, goal);
 
-  printf("\n\x1b[34m*************************************************");
-  printf("\n\x1b[34mStart state: (%lf, %lf %lf)", start[0], start[1], start[2]);
-  printf("\n\x1b[34mGoal state: (%lf, %lf %lf)", goal[0], goal[1], goal[2]);
-  printf("\n\x1b[34m*************************************************");
+  printf("\x1b[34m*************************************************\n");
+  printf("\x1b[34mStart state: (%lf, %lf %lf)\n", start[0], start[1], start[2]);
+  printf("\x1b[34mGoal state: (%lf, %lf %lf)\n", goal[0], goal[1], goal[2]);
+  printf("\x1b[34m*************************************************\n");
   fflush(stdout);
 
   ob::PlannerStatus solved =
@@ -157,12 +158,24 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
     std::cout << "Found solution:" << std::endl;
     ss->simplifySolution();
     og::PathGeometric pth = ss->getSolutionPath();
+    std::vector<ob::State *> states = pth.getStates();
+
+    double cost_total = 0.0;
+    for (auto i = 0; i < states.size() - 1; i++) {
+      auto dtc = dynamic_cast<ompl::mod::DTCOptimizationObjective *>(
+          ss->getOptimizationObjective().get());
+      cost_total += dtc->motionCostly(states[i], states[i + 1]);
+    }
+
+    printf("\n\x1b[34mSOLUTION COST: %lf\n", cost_total);
+
+
     pLen = pth.length();
     int numInterpolationPoints =
         ((double)pLen) / planner_params_.path_resolution;
     if (numInterpolationPoints > 0) pth.interpolate(numInterpolationPoints);
 
-    std::vector<ob::State *> states = pth.getStates();
+    states = pth.getStates();
     std::vector<double> reals;
 
     path->poses.clear();

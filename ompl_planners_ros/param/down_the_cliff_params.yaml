@@ -2,9 +2,9 @@ DownTheCLiFFPlanner:
   footprint: [[0.25, 0.125], [0.25, -0.125], [-0.25, -0.125], [-0.25, 0.125]]
   planner:
     cliffmap_filename: "/home/ksatyaki/workspace/iliad_ws/src/cliff_planners/cliffmaps/map1a.xml"
-    planning_time: 10.0
+    planning_time: 60.0
     weight_q: 1.0
-    weight_c: 10.0 
+    weight_c: 1.0 
     weight_d: 1.0
     path_resolution: 0.1
     publish_viz_markers: true

@@ -129,10 +129,6 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
   ss->clearStartStates();
   ss->clear();
 
-  ompl::mod::DTCOptimizationObjective *tmp_ptr =
-      dynamic_cast<ompl::mod::DTCOptimizationObjective *>(
-          ss->getOptimizationObjective().get());
-  viz.publishMarkers(tmp_ptr->getMA());
   double pLen = 0.0;
 
   ob::ScopedState<> start(ss->getSpaceInformation()->getStateSpace()),

@@ -56,10 +56,6 @@ class DTCOptimizationObjective : public ompl::base::OptimizationObjective {
             cliffmap->getResolution());
   }
 
-  inline visualization_msgs::MarkerArray getMA() {
-    return cliffmap->toVisualizationMarkers();
-  }
-
   /**
    * Initialize the DTC weights.
    * @param wd Euclidean distance weight.

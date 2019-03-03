@@ -27,7 +27,10 @@
 #include <nav_msgs/OccupancyGrid.h>
 
 #include <ompl/geometric/planners/rrt/RRTstar.h>
+#include <ompl/geometric/planners/rrt/RRTsharp.h>
+#include <ompl/geometric/planners/prm/PRMstar.h>
 #include "ompl/mod/objectives/DTCOptimizationObjective.h"
+#include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 
 namespace mm = mrpt::maps;
 namespace ob = ompl::base;

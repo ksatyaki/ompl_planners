@@ -1,15 +1,15 @@
 DownTheCLiFFPlanner:
   footprint: [[0.25, 0.125], [0.25, -0.125], [-0.25, -0.125], [-0.25, 0.125]]
   planner:
-    cliffmap_filename: "/home/ksatyaki/workspace/iliad_ws/src/cliff_planners/cliffmaps/map1a.xml"
-    planning_time: 60.0
+    cliffmap_filename: "/home/ksatyaki/workspace/cpp_ws/src/cliff_planners/cliffmaps/map1a.xml"
+    planning_time: 30.0
     weight_q: 1.0
-    weight_c: 1.0 
+    weight_c: 0.1
     weight_d: 1.0
     path_resolution: 0.1
     publish_viz_markers: true
   vehicle:
     inflation_radius: 0.2
     turning_radius: 0.5
-    vehicle_vehicle_speed: 1.0 
-  
+    vehicle_vehicle_speed: 1.0
+

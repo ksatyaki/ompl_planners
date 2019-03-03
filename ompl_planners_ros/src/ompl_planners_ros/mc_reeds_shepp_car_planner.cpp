@@ -18,14 +18,6 @@
 
 #include <ompl_planners_ros/mc_reeds_shepp_car_planner.hpp>
 
-std::array<double, 3> getState(const ompl::base::State *s) {
-  auto state_concrete = s->as<ompl::base::ReedsSheppStateSpace::StateType>();
-
-  std::array<double, 3> return_val{
-      state_concrete->getX(), state_concrete->getY(), state_concrete->getYaw()};
-  return return_val;
-}
-
 namespace ompl_planners_ros {
 
 MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
@@ -63,7 +55,9 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
     }
   }
 
-  // Setup the og::SimpleSetup;
+  // ************************* //
+  // STATE SPACE SETUP         //
+  // ************************* //
   ob::StateSpacePtr space(
       new ob::ReedsSheppStateSpace(vehicle_params_.turning_radius));
   ss = boost::make_shared<og::SimpleSetup>(space);
@@ -82,10 +76,9 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
   }
 
   space->as<ob::SE2StateSpace>()->setBounds(bounds);
-  std::cout << "Bounds are [(" << bounds.low[0] << "," << bounds.low[1] << "),("
-            << bounds.high[0] << "," << bounds.high[1] << ")]" << std::endl;
-
-  // State Validity Checker
+  // ************************* //
+  // STATE VALIDITY CHECKER    //
+  // ************************* //
   ob::SpaceInformationPtr si(ss->getSpaceInformation());
 
   // Get the vertices as a vector of Xs and Ys.
@@ -96,32 +89,37 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
       ob::StateValidityCheckerPtr(new MultipleCircleStateValidityChecker(
           si, grid_map_, vehicle_params_.inflation_radius, x_coords_,
           y_coords_)));
-  ss->getSpaceInformation()->setStateValidityCheckingResolution(0.005);
+  ss->getSpaceInformation()->setStateValidityCheckingResolution(
+      grid_map_.getResolution() / space->getMaximumExtent());
 
+  // ************************* //
+  // OPTIMIZATION OBJECTIVE    //
+  // ************************* //
   ob::OptimizationObjectivePtr DTCCostObjective(
-      new ompl::mod::DTCOptimizationObjective(si));
-
-  ompl::mod::DTCOptimizationObjective *tmp_ptr =
-      dynamic_cast<ompl::mod::DTCOptimizationObjective *>(
-          DTCCostObjective.get());
-  tmp_ptr->initCLiFFMap(planner_params_.cliffmap_filename);
-  tmp_ptr->initDTCWeights(planner_params_.weight_d, planner_params_.weight_q,
-                          planner_params_.weight_c,
-                          vehicle_params_.max_vehicle_speed);
-  tmp_ptr->setGetStateAsArrayFunction(&getState);
-
+      new ompl::mod::DTCOptimizationObjective(
+          si, planner_params_.cliffmap_filename, planner_params_.weight_d,
+          planner_params_.weight_q, planner_params_.weight_c,
+          vehicle_params_.max_vehicle_speed));
   ss->setOptimizationObjective(DTCCostObjective);
-  // Choose the planner.
-  auto planner(boost::make_shared<og::RRTstar>(si));
-  planner->setRange(10.0);
+
+  // Uncomment for path length optimization.
+  // ob::OptimizationObjectivePtr pt(new
+  // ob::PathLengthOptimizationObjective(si));
+  // ss->setOptimizationObjective(pt);
+
+  // ************************* //
+  // PLANNER                   //
+  // ************************* //
+  auto planner = std::make_shared<og::RRTstar>(si);
+  planner->setRange(space->getMaximumExtent());
   ss->setPlanner(planner);
 
   ss->setup();
-  ss->print();
+  // ss->print();
 
-  std::cout << "**********************************************************\n";
-  std::cout << "*** MCRSCP has successfully setup the planning problem ***\n";
-  std::cout << "**********************************************************\n";
+  ROS_INFO_STREAM("Longest valid segment length is "
+                  << ss->getStateSpace()->getLongestValidSegmentLength());
+  ROS_INFO_STREAM("MCRSCP is ready to take goals.");
 }
 
 bool MultipleCirclesReedsSheppCarPlanner::plan(
@@ -145,37 +143,22 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
   goal[2] = atan2(goalState.orientation.z, goalState.orientation.w);
   ss->setStartAndGoalStates(start, goal);
 
-  printf("\x1b[34m*************************************************\n");
-  printf("\x1b[34mStart state: (%lf, %lf %lf)\n", start[0], start[1], start[2]);
-  printf("\x1b[34mGoal state: (%lf, %lf %lf)\n", goal[0], goal[1], goal[2]);
-  printf("\x1b[34m*************************************************\n");
-  fflush(stdout);
+  ROS_INFO_STREAM(std::fixed << std::setprecision(2) << "Start state: \x1b[34m("
+                             << start[0] << ", " << start[1] << ", " << start[2]
+                             << ")");
+  ROS_INFO_STREAM(std::fixed << std::setprecision(2) << "Goal  state: \x1b[34m("
+                             << goal[0] << ", " << goal[1] << ", " << goal[2]
+                             << ")");
 
   ob::PlannerStatus solved =
       ss->getPlanner()->solve(planner_params_.planning_time);
 
   if (solved) {
-    std::cout << "Found solution:" << std::endl;
-    ss->simplifySolution();
+    // ss->simplifySolution();
     og::PathGeometric pth = ss->getSolutionPath();
+    pth.interpolate();
+
     std::vector<ob::State *> states = pth.getStates();
-
-    double cost_total = 0.0;
-    for (auto i = 0; i < states.size() - 1; i++) {
-      auto dtc = dynamic_cast<ompl::mod::DTCOptimizationObjective *>(
-          ss->getOptimizationObjective().get());
-      cost_total += dtc->motionCostly(states[i], states[i + 1]);
-    }
-
-    printf("\n\x1b[34mSOLUTION COST: %lf\n", cost_total);
-
-
-    pLen = pth.length();
-    int numInterpolationPoints =
-        ((double)pLen) / planner_params_.path_resolution;
-    if (numInterpolationPoints > 0) pth.interpolate(numInterpolationPoints);
-
-    states = pth.getStates();
     std::vector<double> reals;
 
     path->poses.clear();
@@ -198,7 +181,7 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
 
     return 1;
   }
-  std::cout << "WARNING: No solution found" << std::endl;
+  ROS_WARN_STREAM("\x1b[93mNo solution found");
   return 0;
 }
 }  // namespace ompl_planners_ros

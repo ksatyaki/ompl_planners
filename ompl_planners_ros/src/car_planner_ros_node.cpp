@@ -60,8 +60,7 @@ class CarPlannerROSNode {
       ROS_FATAL("Failed to call the map server for map!");
     }
 
-    ROS_INFO_STREAM("\x1b[34m"
-                    << "[PLANNER]: Map received!");
+    ROS_INFO_STREAM("[PLANNER]: Map received!");
 
     nh.getParam("planner/weight_d", pp.weight_d);
     nh.getParam("planner/weight_c", pp.weight_c);
@@ -78,26 +77,25 @@ class CarPlannerROSNode {
         costmap_2d::makeFootprintFromParams(nh);
 
     for (const auto& ftprntpt : ftprnt) {
-      ROS_INFO("><>< %lf, %lf ><><", ftprntpt.x, ftprntpt.y);
+      ROS_INFO_STREAM(std::fixed << std::setprecision(2) << "\x1b[34m("
+                                 << ftprntpt.x << "," << ftprntpt.y << ")");
       vp.footprint.AddVertex(ftprntpt.x, ftprntpt.y);
     }
 
     ROS_INFO_STREAM(
-        "\x1b[34m" << std::endl
-                   << "*** ***************************************" << std::endl
-                   << "*** wd: " << pp.weight_d << std::endl
-                   << "*** wq: " << pp.weight_q << std::endl
-                   << "*** wc: " << pp.weight_c << std::endl
-                   << "*** Publish viz markers? " << pp.publish_viz_markers
-                   << std::endl
-                   << "*** Planning time: " << pp.planning_time << std::endl
-                   << "*** Path resolution: " << pp.path_resolution << std::endl
-                   << "*** Cliffmap file: " << pp.cliffmap_filename << std::endl
-                   << "*** Turning radius: " << vp.turning_radius << std::endl
-                   << "*** Inflation radius: " << vp.inflation_radius
-                   << std::endl
-                   << "*** Check footprint manually." << std::endl
-                   << "*** ***************************************");
+        std::endl
+        << "*** ***************************************" << std::endl
+        << "*** wd: " << pp.weight_d << std::endl
+        << "*** wq: " << pp.weight_q << std::endl
+        << "*** wc: " << pp.weight_c << std::endl
+        << "*** Publish viz markers? " << pp.publish_viz_markers << std::endl
+        << "*** Planning time: " << pp.planning_time << std::endl
+        << "*** Path resolution: " << pp.path_resolution << std::endl
+        << "*** Cliffmap file: " << pp.cliffmap_filename << std::endl
+        << "*** Turning radius: " << vp.turning_radius << std::endl
+        << "*** Inflation radius: " << vp.inflation_radius << std::endl
+        << "*** Check footprint manually." << std::endl
+        << "*** ***************************************");
 
     nav_msgs::OccupancyGridPtr occ_map =
         nav_msgs::OccupancyGridPtr(new nav_msgs::OccupancyGrid);
@@ -105,8 +103,8 @@ class CarPlannerROSNode {
     planner = boost::make_shared<
         ompl_planners_ros::MultipleCirclesReedsSheppCarPlanner>(pp, vp,
                                                                 occ_map);
-    //planner->ss->getProblemDefinition()->setIntermediateSolutionCallback(
-    //    boost::bind(&CarPlannerROSNode::solutionCallback, this, _1, _2, _3));
+    planner->ss->getProblemDefinition()->setIntermediateSolutionCallback(
+        boost::bind(&CarPlannerROSNode::solutionCallback, this, _1, _2, _3));
   }
 
   virtual ~CarPlannerROSNode(){};
@@ -115,8 +113,15 @@ class CarPlannerROSNode {
       const ompl::base::Planner* planner,
       const std::vector<const ompl::base::State*>& solution_states,
       const ompl::base::Cost cost) {
-    ROS_INFO_STREAM("\x1b[34m"
-                    << "New solution found with cost: " << cost.value());
+    ROS_INFO_STREAM("New solution found with cost: \x1b[34m"
+                    << std::fixed << std::setprecision(2) << cost.value());
+    double cost_total = 0.0;
+    for (auto i = 0; i < solution_states.size() - 1; i++) {
+      auto dtc = dynamic_cast<ompl::mod::DTCOptimizationObjective*>(
+          this->planner->ss->getOptimizationObjective().get());
+      cost_total +=
+          dtc->motionCost(solution_states[i], solution_states[i + 1]).value();
+    }
   }
 
   void callback_fn2(const geometry_msgs::PoseStampedConstPtr& start) {
@@ -137,14 +142,7 @@ class CarPlannerROSNode {
 
     planner->plan(*start_pose, goal->pose, poses_ptr.get());
 
-    std::cout << std::endl;
-    ROS_INFO_STREAM("\x1b[34m[CALLBACK]: PLANNING COMPLETE!");
-    ROS_INFO_STREAM(
-        "\x1b[34m[CALLBACK]: Cost: " << planner->ss->getPlanner()
-                                            ->as<ompl::geometric::RRTstar>()
-                                            ->getBestCost());
-    std::cout << std::endl;
-    fflush(stdout);
+    ROS_INFO_STREAM("\x1b[34mPLANNING COMPLETE!");
 
     return;
   }

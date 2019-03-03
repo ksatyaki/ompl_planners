@@ -28,57 +28,19 @@ class DTCOptimizationObjective : public ompl::base::OptimizationObjective {
   /// Maximum vehicle speed used in the computation of Down-The-CLiFF cost.
   double max_vehicle_speed;
 
-  /// A function pointer to get the state as a std::array.
-  std::function<std::array<double, 3>(const ompl::base::State *)>
-      getStateAsArray;
-
   /// A std smart pointer to the CLiFFMap.
-  std::shared_ptr<cliffmap_ros::CLiFFMap> cliffmap;
+  cliffmap_ros::CLiFFMap cliffmap;
 
  public:
   /**
    * Constructor
    * @param si SpaceInformationPtr that we get from the problem setup.
    */
-  DTCOptimizationObjective(const ompl::base::SpaceInformationPtr &si);
+  DTCOptimizationObjective(const ompl::base::SpaceInformationPtr &si,
+                           const std::string &cliffmap_filename, float wd,
+                           float wq, float wc, float maxvs);
 
-  /**
-   * Initialize CLiFF-map
-   * @param cliffmap_filename File name of the CLiFF-map xml.
-   */
-  inline void initCLiFFMap(const std::string cliffmap_filename) {
-    cliffmap = std::make_shared<cliffmap_ros::CLiFFMap>();
-    cliffmap->readFromXML(cliffmap_filename);
-    cliffmap->organizeAsGrid();
-
-    std::cout
-        << ("Read a cliffmap XML organized as a grid @ %lf m/cell resolution.",
-            cliffmap->getResolution());
-  }
-
-  /**
-   * Initialize the DTC weights.
-   * @param wd Euclidean distance weight.
-   * @param wq Quaternion distance weight.
-   * @param wc DTC cost weight.
-   * @param maxvs Maximum vehicle speed.
-   */
-  inline void initDTCWeights(float wd, float wq, float wc, float maxvs) {
-    this->weight_c = wc;
-    this->weight_d = wd;
-    this->weight_q = wq;
-    this->max_vehicle_speed = maxvs;
-  }
-
-  /**
-   * Set the function that returns the state as a std::array. This is required!
-   * @param func A function that takes ompl::base::State* and dynamic_casts it
-   * to the appropriate state and then returns the state as a std::array.
-   */
-  void setGetStateAsArrayFunction(
-      std::function<std::array<double, 3>(const ompl::base::State *)> func) {
-    getStateAsArray = func;
-  }
+  virtual bool isSymmetric() const override { return false; }
 
   ompl::base::Cost stateCost(const ompl::base::State *s) const override;
 
@@ -87,9 +49,6 @@ class DTCOptimizationObjective : public ompl::base::OptimizationObjective {
 
   ompl::base::Cost motionCostHeuristic(
       const ompl::base::State *s1, const ompl::base::State *s2) const override;
-
-  double motionCostly(const ompl::base::State *s1,
-                      const ompl::base::State *s2) const;
 };
 }
 }

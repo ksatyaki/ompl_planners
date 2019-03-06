@@ -59,7 +59,7 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
         si_->distance(intermediate_states[i], intermediate_states[i + 1]);
 
     // 4b. Compute the quaternion distance.
-    double q_dist = 1.0 - fabs(dot);
+    double q_dist = (1.0 - dot*dot);
 
     double cliffcost = 0.0;
     Eigen::Vector2d V;

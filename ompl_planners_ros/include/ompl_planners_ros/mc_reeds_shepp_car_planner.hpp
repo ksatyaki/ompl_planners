@@ -30,7 +30,6 @@
 #include <ompl/geometric/planners/rrt/RRTsharp.h>
 #include <ompl/geometric/planners/prm/PRMstar.h>
 #include <ompl/geometric/planners/fmt/FMT.h>
-#include "ompl/mod/objectives/DTCOptimizationObjective.h"
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 
 namespace mm = mrpt::maps;
@@ -75,11 +74,6 @@ struct PlannerParameters {
    * is completed.
    */
   double path_resolution{0.25};
-
-  /**
-   * File-name of the CLiFF-map xml.
-   */
-  std::string cliffmap_filename;
 };
 
 /**

@@ -95,12 +95,12 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
   // ************************* //
   // OPTIMIZATION OBJECTIVE    //
   // ************************* //
-  ob::OptimizationObjectivePtr DTCCostObjective(
-      new ompl::mod::DTCOptimizationObjective(
-          si, planner_params_.cliffmap_filename, planner_params_.weight_d,
-          planner_params_.weight_q, planner_params_.weight_c,
-          vehicle_params_.max_vehicle_speed));
-  ss->setOptimizationObjective(DTCCostObjective);
+  //  ob::OptimizationObjectivePtr DTCCostObjective(
+  //      new ompl::mod::DTCOptimizationObjective(
+  //          si, planner_params_.cliffmap_filename, planner_params_.weight_d,
+  //          planner_params_.weight_q, planner_params_.weight_c,
+  //          vehicle_params_.max_vehicle_speed));
+  //  ss->setOptimizationObjective(DTCCostObjective);
 
   // Uncomment for path length optimization.
   // ob::OptimizationObjectivePtr pt(new

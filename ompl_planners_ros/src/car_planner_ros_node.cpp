@@ -32,6 +32,12 @@
 #include "ompl_planners_ros/mc_reeds_shepp_car_planner.hpp"
 #include "ompl_planners_ros/visualization.hpp"
 
+#include "ompl/mod/objectives/DTCOptimizationObjective.h"
+#include "ompl/mod/objectives/UpstreamCriterionOptimizationObjective.h"
+
+#include <stefmap_ros/GetSTeFMap.h>
+#include <stefmap_ros/stefmap.hpp>
+
 class CarPlannerROSNode {
  protected:
   ros::NodeHandle nh;
@@ -39,6 +45,9 @@ class CarPlannerROSNode {
 
   ompl_planners_ros::PlannerParameters pp;
   ompl_planners_ros::VehicleParameters vp;
+
+  stefmap_ros::STeFMapClient stefmap_client;
+  cliffmap_ros::CLiFFMapClient cliffmap_client;
 
   ros::Publisher path_pub;
   ros::ServiceClient map_client;
@@ -62,12 +71,14 @@ class CarPlannerROSNode {
 
     ROS_INFO_STREAM("[PLANNER]: Map received!");
 
+    bool cliffmap_planning = false;
+
     nh.getParam("planner/weight_d", pp.weight_d);
     nh.getParam("planner/weight_c", pp.weight_c);
     nh.getParam("planner/weight_q", pp.weight_q);
     nh.getParam("planner/planning_time", pp.planning_time);
     nh.getParam("planner/path_resolution", pp.path_resolution);
-    nh.getParam("planner/cliffmap_filename", pp.cliffmap_filename);
+    nh.getParam("planner/cliffmap_planning", cliffmap_planning);
     nh.getParam("planner/publish_viz_markers", pp.publish_viz_markers);
 
     nh.getParam("vehile/inflation_radius", vp.inflation_radius);
@@ -91,7 +102,8 @@ class CarPlannerROSNode {
         << "*** Publish viz markers? " << pp.publish_viz_markers << std::endl
         << "*** Planning time: " << pp.planning_time << std::endl
         << "*** Path resolution: " << pp.path_resolution << std::endl
-        << "*** Cliffmap file: " << pp.cliffmap_filename << std::endl
+        << "*** Cost type: "
+        << (cliffmap_planning ? "Down-The-CLiFF" : "STeF-up") << std::endl
         << "*** Turning radius: " << vp.turning_radius << std::endl
         << "*** Inflation radius: " << vp.inflation_radius << std::endl
         << "*** Check footprint manually." << std::endl
@@ -105,6 +117,22 @@ class CarPlannerROSNode {
                                                                 occ_map);
     planner->ss->getProblemDefinition()->setIntermediateSolutionCallback(
         boost::bind(&CarPlannerROSNode::solutionCallback, this, _1, _2, _3));
+
+    if (cliffmap_planning) {
+      ob::OptimizationObjectivePtr DTCCostObjective(
+          new ompl::mod::DTCOptimizationObjective(
+              planner->ss->getSpaceInformation(), cliffmap_client.get(),
+              pp.weight_d, pp.weight_q, pp.weight_c, vp.max_vehicle_speed));
+      planner->ss->setOptimizationObjective(DTCCostObjective);
+    } else {
+      ob::OptimizationObjectivePtr UpstreamCriterionOptimizationObjective(
+          new ompl::mod::UpstreamCriterionOptimizationObjective(
+              planner->ss->getSpaceInformation(),
+              stefmap_client.get(1352265000.0, 2, -45, 55, -35, 30, 1),
+              pp.weight_d, pp.weight_q, pp.weight_c));
+      planner->ss->setOptimizationObjective(
+          UpstreamCriterionOptimizationObjective);
+    }
   }
 
   virtual ~CarPlannerROSNode(){};
@@ -115,13 +143,6 @@ class CarPlannerROSNode {
       const ompl::base::Cost cost) {
     ROS_INFO_STREAM("New solution found with cost: \x1b[34m"
                     << std::fixed << std::setprecision(2) << cost.value());
-    double cost_total = 0.0;
-    for (auto i = 0; i < solution_states.size() - 1; i++) {
-      auto dtc = dynamic_cast<ompl::mod::DTCOptimizationObjective*>(
-          this->planner->ss->getOptimizationObjective().get());
-      cost_total +=
-          dtc->motionCost(solution_states[i], solution_states[i + 1]).value();
-    }
   }
 
   void callback_fn2(const geometry_msgs::PoseStampedConstPtr& start) {

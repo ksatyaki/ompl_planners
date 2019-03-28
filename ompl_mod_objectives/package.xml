@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package>
+  <name>ompl_mod_objectives</name>
+  <version>0.0.0</version>
+  <description>This package defines optimization objectives for planning over Maps of Dynamics</description>
+
+  <author email="chitt@aass.oru.se">Chittaranjan Swaminathan</author>
+  <maintainer email="chitt@aass.oru.se">Chittaranjan Swaminathan</maintainer>
+
+  <license>LGPLv3</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>cliffmap_ros</build_depend>
+  <build_depend>stefmap_ros</build_depend>
+  <build_depend>roscpp</build_depend>
+  
+  <run_depend>roscpp</run_depend>
+  <run_depend>cliffmap_ros</run_depend>
+  <run_depend>stefmap_ros</run_depend>
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
+</package>

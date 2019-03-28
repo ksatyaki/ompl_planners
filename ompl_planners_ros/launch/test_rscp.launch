@@ -6,15 +6,19 @@
   <arg name="debug" default="false" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
   <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
-  <arg name="cliffmap" value="$(find cliff_planners)/cliffmaps/map1a.xml"/>
+  
+  <arg name="cliffmap" default="map1a" />
+  <arg name="occmap" default="1world" />
   
   <!-- Parameters -->
   <rosparam file="$(find ompl_planners_ros)/param/down_the_cliff_params.yaml" command="load"/>
   
   <!-- Nodes -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find smp_ros)/maps/1world.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find ompl_planners_ros)/maps/$(arg occmap).yaml"/>
   
-  <node name="cliffmap_server" pkg="cliffmap_ros" type="cliffmap_server" args="$(find cliff_planners)/cliffmaps/map1a.xml"/>
+  <node name="cliffmap_server" pkg="cliffmap_ros" type="cliffmap_server" args="$(find ompl_planners_ros)/cliffmaps/$(arg cliffmap).xml"/>
+  
+  <node name="stefmap_server" pkg="stefmap_ros" type="stefmap_server.py" />
   
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ompl_planners_ros)/launch/srscp.rviz"/>
     

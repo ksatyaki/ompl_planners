@@ -5,6 +5,7 @@ set(CMAKE_BUILD_TYPE Debug)
 set(MRPT_DONT_USE_DBG_LIBS 1)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-m64")
 set(CMAKE_C_FLAGS "-m64")
 set(CMAKE_EXE_LINKER_FLAGS "-m64")
@@ -17,17 +18,18 @@ add_compile_options("-Wno-ignored-attributes")
 
 find_package(ompl REQUIRED)
 if(OMPL_FOUND)
-  MESSAGE("Found ompl ${OMPL_VERSION} at ${OMPL_INCLUDE_DIRS}")
+  MESSAGE(STATUS "Found ompl ${OMPL_VERSION} at ${OMPL_INCLUDE_DIRS}")
 endif(OMPL_FOUND)
 
 find_package(MRPT REQUIRED)
+
 find_package(catkin REQUIRED
   COMPONENTS
   roscpp
   nav_msgs
-  cliffmap_ros
   costmap_2d
   visualization_msgs
+  ompl_mod_objectives
 )
 
 include_directories(
@@ -40,7 +42,7 @@ include_directories(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ompl_planners_ros
-  CATKIN_DEPENDS roscpp nav_msgs cliffmap_ros costmap_2d visualization_msgs
+  CATKIN_DEPENDS roscpp nav_msgs cliffmap_ros costmap_2d visualization_msgs ompl_mod_objectives
   DEPENDS OMPL MRPT
 )
 
@@ -48,7 +50,6 @@ add_library(ompl_planners_ros
   SHARED
   src/ompl_planners_ros/mc_reeds_shepp_car_planner.cpp
   src/ompl_planners_ros/mc_state_validity_checker.cpp
-  src/ompl/mod/objectives/DTCOptimizationObjective.cpp
   src/ompl_planners_ros/visualization.cpp
 )
 
@@ -57,6 +58,7 @@ target_link_libraries(ompl_planners_ros
   ${MRPT_LIBRARIES}
   ${catkin_LIBRARIES}
 )
+
 add_dependencies(ompl_planners_ros ${catkin_EXPORTED_TARGETS})
 
 add_executable(car_planner_ros_node src/car_planner_ros_node.cpp)

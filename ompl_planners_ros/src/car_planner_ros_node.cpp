@@ -35,7 +35,7 @@
 #include "ompl/mod/objectives/DTCOptimizationObjective.h"
 #include "ompl/mod/objectives/UpstreamCriterionOptimizationObjective.h"
 
-#include <stefmap_ros/GetSTeFMap.h>
+#include <cliffmap_ros/cliffmap.hpp>
 #include <stefmap_ros/stefmap.hpp>
 
 class CarPlannerROSNode {
@@ -119,12 +119,14 @@ class CarPlannerROSNode {
         boost::bind(&CarPlannerROSNode::solutionCallback, this, _1, _2, _3));
 
     if (cliffmap_planning) {
+      ROS_INFO_STREAM("\x1b[34m" << "CLiFF-map planning is activated.");
       ob::OptimizationObjectivePtr DTCCostObjective(
           new ompl::mod::DTCOptimizationObjective(
               planner->ss->getSpaceInformation(), cliffmap_client.get(),
               pp.weight_d, pp.weight_q, pp.weight_c, vp.max_vehicle_speed));
       planner->ss->setOptimizationObjective(DTCCostObjective);
     } else {
+      ROS_INFO_STREAM("\x1b[34m" << "STeF-map planning is activated.");
       ob::OptimizationObjectivePtr UpstreamCriterionOptimizationObjective(
           new ompl::mod::UpstreamCriterionOptimizationObjective(
               planner->ss->getSpaceInformation(),

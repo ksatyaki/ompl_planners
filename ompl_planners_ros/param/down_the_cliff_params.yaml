@@ -1,7 +1,7 @@
 DownTheCLiFFPlanner:
   footprint: [[0.25, 0.125], [0.25, -0.125], [-0.25, -0.125], [-0.25, 0.125]]
   planner:
-    cliffmap_planning: false
+    cliffmap_planning: true
     planning_time: 30.0
     weight_q: 1.0
     weight_c: 0.1

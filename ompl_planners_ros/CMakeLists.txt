@@ -64,3 +64,31 @@ add_dependencies(ompl_planners_ros ${catkin_EXPORTED_TARGETS})
 add_executable(car_planner_ros_node src/car_planner_ros_node.cpp)
 target_link_libraries(car_planner_ros_node ompl_planners_ros ${catkin_LIBRARIES})
 
+install(TARGETS ompl_planners_ros car_planner_ros_node
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
+  PATTERN ".svn" EXCLUDE
+)
+
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+  PATTERN ".svn" EXCLUDE)
+
+install(DIRECTORY maps/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/maps
+  PATTERN ".svn" EXCLUDE)
+
+install(DIRECTORY cliffmaps/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/cliffmaps
+  PATTERN ".svn" EXCLUDE)
+
+install(DIRECTORY params/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/params
+  PATTERN ".svn" EXCLUDE)
+

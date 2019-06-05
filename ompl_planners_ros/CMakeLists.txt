@@ -64,15 +64,3 @@ add_dependencies(ompl_planners_ros ${catkin_EXPORTED_TARGETS})
 add_executable(car_planner_ros_node src/car_planner_ros_node.cpp)
 target_link_libraries(car_planner_ros_node ompl_planners_ros ${catkin_LIBRARIES})
 
-# #Use "sudo make install" to apply
-# install(TARGETS simplereedssheppcarplanner DESTINATION /usr/local/lib)
-
-# install(TARGETS wts_driver wts_driver_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-# install(DIRECTORY launch/
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
-# PATTERN ".svn" EXCLUDE)

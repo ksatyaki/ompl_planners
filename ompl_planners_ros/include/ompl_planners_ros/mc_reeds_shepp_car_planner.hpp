@@ -27,7 +27,6 @@
 #include <nav_msgs/OccupancyGrid.h>
 
 #include <ompl/geometric/planners/rrt/RRTstar.h>
-#include <ompl/geometric/planners/rrt/RRTsharp.h>
 #include <ompl/geometric/planners/prm/PRMstar.h>
 #include <ompl/geometric/planners/fmt/FMT.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>

@@ -2,8 +2,8 @@
 Changelog for package ompl_planners_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.3 (2019-06-07)
+------------------
 * Add mrpt as dependency
 * Contributors: Chittaranjan Swaminathan
 

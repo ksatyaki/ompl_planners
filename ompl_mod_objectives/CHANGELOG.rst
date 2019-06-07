@@ -2,6 +2,11 @@
 Changelog for package ompl_mod_objectives
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix ompl dependency
+* Contributors: Chittaranjan Swaminathan
+
 0.0.3 (2019-06-07)
 ------------------
 * Add eigen as dependency

@@ -14,7 +14,9 @@
   <build_depend>cliffmap_ros</build_depend>
   <build_depend>stefmap_ros</build_depend>
   <build_depend>roscpp</build_depend>
-  
+  <build_depend>eigen</build_depend>
+
+  <run_depend>eigen</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>cliffmap_ros</run_depend>
   <run_depend>stefmap_ros</run_depend>

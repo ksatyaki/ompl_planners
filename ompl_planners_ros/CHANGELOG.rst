@@ -2,8 +2,8 @@
 Changelog for package ompl_planners_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.5 (2019-06-10)
+------------------
 * Add compile options for external literals
 * Contributors: Chittaranjan Swaminathan
 

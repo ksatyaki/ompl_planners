@@ -2,6 +2,9 @@
 Changelog for package ompl_mod_objectives
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.0.4 (2019-06-07)
 ------------------
 * Fix ompl dependency

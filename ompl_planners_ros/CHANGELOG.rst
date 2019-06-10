@@ -2,6 +2,10 @@
 Changelog for package ompl_planners_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix install target for param folder.
+
 0.0.5 (2019-06-10)
 ------------------
 * Add compile options for external literals

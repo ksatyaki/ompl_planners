@@ -14,6 +14,11 @@ set(CMAKE_SHARED_LINKER_FLAGS "-m64")
 
 add_compile_options("-Wno-ignored-attributes")
 
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+  message("${PROJECT_NAME}: You did not request a specific build type: Choosing 'Release' for maximum performance")
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
 find_package(ompl REQUIRED)
 if(OMPL_FOUND)
   MESSAGE(STATUS "Found ompl ${OMPL_VERSION} at ${OMPL_INCLUDE_DIRS}")
@@ -61,9 +66,7 @@ install(TARGETS ompl_mod_objectives
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
-  PATTERN ".svn" EXCLUDE
+install(DIRECTORY include/
+  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}
 )
 

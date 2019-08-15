@@ -31,6 +31,7 @@ find_package(catkin REQUIRED
   roscpp
   cliffmap_ros
   stefmap_ros
+  gmmtmap_ros
 )
 
 include_directories(
@@ -43,7 +44,7 @@ include_directories(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ompl_mod_objectives
-  CATKIN_DEPENDS roscpp cliffmap_ros stefmap_ros
+  CATKIN_DEPENDS roscpp cliffmap_ros stefmap_ros gmmtmap_ros
   DEPENDS OMPL Eigen3
 )
 

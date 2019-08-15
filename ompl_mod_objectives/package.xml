@@ -13,6 +13,7 @@
   
   <build_depend>cliffmap_ros</build_depend>
   <build_depend>stefmap_ros</build_depend>
+  <build_depend>gmmtmap_ros</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>eigen</build_depend>
   <build_depend>ompl</build_depend>
@@ -22,6 +23,7 @@
   <run_depend>roscpp</run_depend>
   <run_depend>cliffmap_ros</run_depend>
   <run_depend>stefmap_ros</run_depend>
+  <run_depend>gmmtmap_ros</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

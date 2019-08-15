@@ -22,7 +22,7 @@
 
 #include <cliffmap_ros/cliffmap.hpp>
 
-#include "ompl/base/OptimizationObjective.h"
+#include <ompl/mod/objectives/MoDOptimizationObjective.h>
 
 namespace ompl {
 
@@ -33,15 +33,7 @@ namespace mod {
  * This is a multi-optimization objective but doens't derive from the
  * corresponding OMPL class.
  */
-class DTCOptimizationObjective : public ompl::base::OptimizationObjective {
-  /// The weight associated with Euclidean distance cost.
-  double weight_d;
-
-  /// The weight associated with quaternion distance cost.
-  double weight_q;
-
-  /// The weight associated with Down-The-CLiFF cost.
-  double weight_c;
+class DTCOptimizationObjective : public ompl::mod::MoDOptimizationObjective {
 
   /// Maximum vehicle speed used in the computation of Down-The-CLiFF cost.
   double max_vehicle_speed;

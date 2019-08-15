@@ -16,18 +16,28 @@
  *   along with ompl_planners_ros.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <boost/geometry.hpp>
 #include <ompl/mod/objectives/UpstreamCriterionOptimizationObjective.h>
 
 ompl::mod::UpstreamCriterionOptimizationObjective::
     UpstreamCriterionOptimizationObjective(
         const ompl::base::SpaceInformationPtr &si,
         const stefmap_ros::STeFMap &stefmap, float wd, float wq, float wc)
-    : ompl::base::OptimizationObjective(si),
-      stefmap(stefmap),
-      weight_d(wq),
-      weight_q(wq),
-      weight_c(wc) {
-  description_ = "STeF-up Cost";
+    : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::STeFMap),
+      stefmap(new stefmap_ros::STeFMap(stefmap)) {
+  description_ = "Upstream Cost over STeF-map";
+
+  // Setup a default cost-to-go heuristics:
+  setCostToGoHeuristic(ompl::base::goalRegionCostToGo);
+}
+
+ompl::mod::UpstreamCriterionOptimizationObjective::
+    UpstreamCriterionOptimizationObjective(
+        const ompl::base::SpaceInformationPtr &si,
+        const gmmtmap_ros::GMMTMap &gmmtmap, float wd, float wq, float wc)
+    : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::STeFMap),
+      gmmtmap(new gmmtmap_ros::GMMTMap(gmmtmap)) {
+  description_ = "Upstream Cost over GMMT-map";
 
   // Setup a default cost-to-go heuristics:
   setCostToGoHeuristic(ompl::base::goalRegionCostToGo);
@@ -80,22 +90,58 @@ ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost(
     // 4b. Compute the quaternion distance.
     double q_dist = (1.0 - dot * dot);
 
-    double stefmap_cost = 0.0;
+    double mod_cost = 0.0;
     double alpha = atan2(state_b[1] - state_a[1], state_b[0] - state_a[0]);
 
     double x = state_b[0];
     double y = state_b[1];
 
-    const stefmap_ros::STeFMapCell &cell = stefmap(x, y);
-
-    for (int i = 0; i < 8; i++) {
-      stefmap_cost += cell.probabilities[i] * (1 - cos(alpha - (i * M_PI / 4)));
+    switch (map_type_) {
+    case MapType::GMMTMap:
+      mod_cost = getGMMTMapCost(x, y, alpha);
+      break;
+    case MapType::STeFMap:
+      mod_cost = getSTeFMapCost(x, y, alpha);
+      break;
+    default:
+      ROS_WARN_THROTTLE(2,
+                        "Warning: motionCost() called with MapType: %s. "
+                        "Returning identity cost.",
+                        getMapTypeStr().c_str());
+      mod_cost = this->identityCost().value();
     }
 
-    total_cost += (weight_d * this_distance) + (weight_q * q_dist) +
-                  (stefmap_cost * weight_c);
+    total_cost += (weight_d_ * this_distance) + (weight_q_ * q_dist) +
+                  (mod_cost * weight_c_);
     si_->freeState(intermediate_states[i]);
   }
   si_->freeState(intermediate_states[intermediate_states.size() - 1]);
   return ompl::base::Cost(total_cost);
+}
+
+double ompl::mod::UpstreamCriterionOptimizationObjective::getSTeFMapCost(
+    double x, double y, double alpha) const {
+  double mod_cost = 0.0;
+
+  const stefmap_ros::STeFMapCell &cell = (*stefmap)(x, y);
+  for (int i = 0; i < 8; i++) {
+    mod_cost += cell.probabilities[i] * (1 - cos(alpha - (i * M_PI / 4)));
+  }
+  return mod_cost;
+}
+
+double ompl::mod::UpstreamCriterionOptimizationObjective::getGMMTMapCost(
+    double x, double y, double alpha) const {
+  double mod_cost = 0.0;
+
+  for (const auto &dist : (*gmmtmap)(x, y)) {
+    double beta = atan2(dist.first.y(), dist.first.x());
+    double distance_between_gmmtmap_mean_and_current_state_xy =
+        boost::geometry::distance(dist.first, gmmtmap_ros::Point2D(x, y));
+    mod_cost += (gmmtmap->getStdDev() /
+                 distance_between_gmmtmap_mean_and_current_state_xy) *
+                (1 - cos(alpha - beta));
+  }
+
+  return mod_cost;
 }

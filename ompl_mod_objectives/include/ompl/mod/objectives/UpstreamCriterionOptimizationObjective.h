@@ -13,31 +13,33 @@
  *   GNU Lesser General Public License for more details.
  *
  *   You should have received a copy of the GNU Lesser General Public License
- *   along with ompl_planners_ros.  If not, see <https://www.gnu.org/licenses/>.
+ *   along with ompl_mod_objectives. If not, see <https://www.gnu.org/licenses/>
  */
 
 #pragma once
 
 #include <stefmap_ros/stefmap.hpp>
-#include "ompl/base/OptimizationObjective.h"
+#include <gmmtmap_ros/gmmtmap.hpp>
+#include <ompl/mod/objectives/MoDOptimizationObjective.h>
 
 namespace ompl {
 namespace mod {
 
 class UpstreamCriterionOptimizationObjective
-    : public ompl::base::OptimizationObjective {
-  double weight_d;
+    : public ompl::mod::MoDOptimizationObjective {
 
-  double weight_q;
+  stefmap_ros::STeFMapPtr stefmap;
 
-  double weight_c;
-
-  stefmap_ros::STeFMap stefmap;
+  gmmtmap_ros::GMMTMapPtr gmmtmap;
 
  public:
   UpstreamCriterionOptimizationObjective(
       const ompl::base::SpaceInformationPtr &si,
       const stefmap_ros::STeFMap &stefmap, float wd, float wq, float wc);
+
+  UpstreamCriterionOptimizationObjective(
+      const ompl::base::SpaceInformationPtr &si,
+      const gmmtmap_ros::GMMTMap &gmmtmap, float wd, float wq, float wc);
 
   virtual inline bool isSymmetric() const override { return false; }
 
@@ -45,6 +47,10 @@ class UpstreamCriterionOptimizationObjective
 
   ompl::base::Cost motionCost(const ompl::base::State *s1,
                               const ompl::base::State *s2) const override;
+
+  double getSTeFMapCost(double x, double y, double alpha) const;
+
+  double getGMMTMapCost(double x, double y, double alpha) const;
 
   ompl::base::Cost motionCostHeuristic(
       const ompl::base::State *s1, const ompl::base::State *s2) const override;

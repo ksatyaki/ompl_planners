@@ -26,10 +26,7 @@ ompl::mod::DTCOptimizationObjective::DTCOptimizationObjective(
     const ompl::base::SpaceInformationPtr &si,
     const cliffmap_ros::CLiFFMap& cliffmap, double wd, double wq, double wc,
     double maxvs)
-    : ompl::base::OptimizationObjective(si),
-      weight_d(wd),
-      weight_q(wq),
-      weight_c(wc),
+    : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::CLiFFMap),
       max_vehicle_speed(maxvs),
       cliffmap(cliffmap) {
   description_ = "DownTheCLiFF Cost";
@@ -125,8 +122,8 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
       }
     }
 
-    total_cost += (weight_d * this_distance) + (weight_q * q_dist) +
-                  (cliffcost * weight_c);
+    total_cost += (weight_d_ * this_distance) + (weight_q_ * q_dist) +
+                  (cliffcost * weight_c_);
     si_->freeState(intermediate_states[i]);
   }
   si_->freeState(intermediate_states[intermediate_states.size() - 1]);

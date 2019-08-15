@@ -2,6 +2,10 @@
 Changelog for package ompl_mod_objectives
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.0.6 (2019-06-10)
+------------------
+* Fix install target error
+
 0.0.5 (2019-06-10)
 ------------------
 

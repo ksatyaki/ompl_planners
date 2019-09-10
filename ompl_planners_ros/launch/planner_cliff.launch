@@ -11,20 +11,19 @@
   <arg name="occmap" default="1world" />
   
   <!-- Parameters -->
-  <rosparam file="$(find ompl_planners_ros)/param/down_the_cliff_params.yaml" command="load"/>
+  <rosparam file="$(find ompl_planners_ros)/param/rrtstar_motion_planner_params.yaml" command="load"/>
   
   <!-- Nodes -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(find ompl_planners_ros)/maps/$(arg occmap).yaml"/>
   
   <node name="cliffmap_server" pkg="cliffmap_ros" type="cliffmap_server" args="$(find ompl_planners_ros)/cliffmaps/$(arg cliffmap).xml"/>
   
-  <node name="stefmap_server" pkg="stefmap_ros" type="stefmap_server.py" />
-  
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ompl_planners_ros)/launch/srscp.rviz"  launch-prefix="$(arg launch_prefix)"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ompl_planners_ros)/launch/srscp.rviz"/>
     
-  <node name="DownTheCLiFFPlanner" type="car_planner_ros_node" pkg="ompl_planners_ros">
+  <node name="RRTStarMotionPlanner" type="car_planner_ros_node" pkg="ompl_planners_ros" launch-prefix="$(arg launch_prefix)">
     <remap from="goal" to="move_base_simple/goal"/>
     <remap from="start" to="move_base_simple/start"/>
+    <param name="planner/mod_type" value="CLiFF-map"/>
   </node>
   
 </launch>

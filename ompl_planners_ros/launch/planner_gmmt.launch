@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<launch>
+
+    <param name="use_sim_time" value="false"/>
+    <!-- Arguments -->
+    <arg name="debug" default="false" />
+    <arg unless="$(arg debug)" name="launch_prefix" value="" />
+    <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
+
+    <arg name="gmmtmap" default="pedsim_office" />
+    <arg name="occmap" default="simple" />
+
+    <!-- Parameters -->
+    <rosparam file="$(find ompl_planners_ros)/param/rrtstar_motion_planner_params.yaml" command="load"/>
+
+    <!-- Nodes -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find ompl_planners_ros)/maps/$(arg occmap).yaml"/>
+
+    <node name="gmmtmap_server" pkg="gmmtmap_ros" type="gmmtmap_server" args="$(find ompl_planners_ros)/gmmtmaps/$(arg gmmtmap).xml"/>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ompl_planners_ros)/launch/srscp.rviz" launch-prefix="$(arg launch_prefix)"/>
+
+    <node name="RRTStarMotionPlanner" type="car_planner_ros_node" pkg="ompl_planners_ros">
+        <remap from="goal" to="move_base_simple/goal"/>
+        <remap from="start" to="move_base_simple/start"/>
+        <param name="planner/mod_type" value="GMMT-map"/>
+    </node>
+
+</launch>

@@ -35,7 +35,7 @@ ompl::mod::UpstreamCriterionOptimizationObjective::
     UpstreamCriterionOptimizationObjective(
         const ompl::base::SpaceInformationPtr &si,
         const gmmtmap_ros::GMMTMap &gmmtmap, float wd, float wq, float wc)
-    : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::STeFMap),
+    : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::GMMTMap),
       gmmtmap(new gmmtmap_ros::GMMTMap(gmmtmap)) {
   description_ = "Upstream Cost over GMMT-map";
 
@@ -133,9 +133,10 @@ double ompl::mod::UpstreamCriterionOptimizationObjective::getSTeFMapCost(
 double ompl::mod::UpstreamCriterionOptimizationObjective::getGMMTMapCost(
     double x, double y, double alpha) const {
   double mod_cost = 0.0;
+  auto dists = (*gmmtmap)(x, y);
 
-  for (const auto &dist : (*gmmtmap)(x, y)) {
-    double beta = atan2(dist.first.y(), dist.first.x());
+  for (const auto &dist : dists) {
+    double beta = atan2(dist.first.get<1>(), dist.first.get<0>());
     double distance_between_gmmtmap_mean_and_current_state_xy =
         boost::geometry::distance(dist.first, gmmtmap_ros::Point2D(x, y));
     mod_cost += (gmmtmap->getStdDev() /

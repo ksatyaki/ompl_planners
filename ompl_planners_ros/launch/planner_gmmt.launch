@@ -8,7 +8,7 @@
     <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
 
     <arg name="gmmtmap" default="pedsim_office" />
-    <arg name="occmap" default="simple" />
+    <arg name="occmap" default="pedsim_office" />
 
     <!-- Parameters -->
     <rosparam file="$(find ompl_planners_ros)/param/rrtstar_motion_planner_params.yaml" command="load"/>

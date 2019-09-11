@@ -41,7 +41,7 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
       float value = -1.0f;
       const int8_t &occ_map_value =
           occ_map_ptr->data[w + h * occ_map_ptr->info.width];
-      if (occ_map_value <= 100 || occ_map_value >= 0) {
+      if (occ_map_value <= 100) {
         value = 1.0f - (float)occ_map_value / 100.0f;
       } else if (occ_map_value == -1) {
         value = -1.0f;

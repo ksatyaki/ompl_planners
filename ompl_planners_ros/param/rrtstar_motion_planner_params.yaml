@@ -4,7 +4,7 @@ RRTStarMotionPlanner:
     mod_type: CLiFF-map
     planning_time: 30.0
     weight_q: 1.0
-    weight_c: 10.0
+    weight_c: 5.0
     weight_d: 1.0
     path_resolution: 0.1
     publish_viz_markers: true

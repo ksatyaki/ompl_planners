@@ -139,8 +139,8 @@ double ompl::mod::UpstreamCriterionOptimizationObjective::getGMMTMapCost(
     double beta = atan2(dist.first.get<1>(), dist.first.get<0>());
     double distance_between_gmmtmap_mean_and_current_state_xy =
         boost::geometry::distance(dist.first, gmmtmap_ros::Point2D(x, y));
-    mod_cost += (gmmtmap->getStdDev() /
-                 distance_between_gmmtmap_mean_and_current_state_xy) *
+    mod_cost += (1 - distance_between_gmmtmap_mean_and_current_state_xy /
+                         gmmtmap->getStdDev()) *
                 (1 - cos(alpha - beta));
   }
 

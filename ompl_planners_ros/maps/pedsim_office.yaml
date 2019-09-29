@@ -1,4 +1,4 @@
-image: /home/ksatyaki/workspace/cpp_ws/src/ompl_planners/ompl_planners_ros/maps/pedsim_office.pgm
+image: pedsim_office.pgm
 resolution: 0.100000
 origin: [-10.000000, -10.000000, 0.000000]
 negate: 0

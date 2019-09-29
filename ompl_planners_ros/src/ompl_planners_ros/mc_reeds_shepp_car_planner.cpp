@@ -89,36 +89,26 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
       ob::StateValidityCheckerPtr(new MultipleCircleStateValidityChecker(
           si, grid_map_, vehicle_params_.inflation_radius, x_coords_,
           y_coords_)));
-  ss->getSpaceInformation()->setStateValidityCheckingResolution(
-      grid_map_.getResolution() / space->getMaximumExtent());
-
-  // ************************* //
-  // OPTIMIZATION OBJECTIVE    //
-  // ************************* //
-  //  ob::OptimizationObjectivePtr DTCCostObjective(
-  //      new ompl::mod::DTCOptimizationObjective(
-  //          si, planner_params_.cliffmap_filename, planner_params_.weight_d,
-  //          planner_params_.weight_q, planner_params_.weight_c,
-  //          vehicle_params_.max_vehicle_speed));
-  //  ss->setOptimizationObjective(DTCCostObjective);
-
-  // Uncomment for path length optimization.
-  // ob::OptimizationObjectivePtr pt(new
-  // ob::PathLengthOptimizationObjective(si));
-  // ss->setOptimizationObjective(pt);
 
   // ************************* //
   // PLANNER                   //
   // ************************* //
   auto planner = std::make_shared<og::RRTstar>(si);
   planner->setRange(space->getMaximumExtent());
+  ss->getSpaceInformation()->setStateValidityCheckingResolution(
+      grid_map_.getResolution() / space->getMaximumExtent());
   ss->setPlanner(planner);
-
   ss->setup();
   // ss->print();
 
+  ROS_INFO_STREAM(
+      "State validity checking resolution: "
+          << ss->getSpaceInformation()->getStateValidityCheckingResolution());
   ROS_INFO_STREAM("Longest valid segment length is "
                   << ss->getStateSpace()->getLongestValidSegmentLength());
+  ROS_INFO_STREAM(
+      "Planner range is: "
+      << std::dynamic_pointer_cast<og::RRTstar>(ss->getPlanner())->getRange());
   ROS_INFO_STREAM("MCRSCP is ready to take goals.");
 }
 

@@ -80,8 +80,7 @@ ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost(
         *space->getValueAddressAtIndex(intermediate_states[i + 1], 1),
         *space->getValueAddressAtIndex(intermediate_states[i + 1], 2)};
 
-    double dot = cos(state_b[2] / 2.0) * cos(state_a[2] / 2.0) +
-                 sin(state_b[2] / 2.0) * sin(state_a[2] / 2.0);
+    double dot = cos((state_b[2] - state_a[2]) / 2.0);
 
     // 4a. Compute Euclidean distance.
     double this_distance =
@@ -90,12 +89,19 @@ ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost(
     // 4b. Compute the quaternion distance.
     double q_dist = (1.0 - dot * dot);
 
-    double mod_cost = 0.0;
     double alpha = atan2(state_b[1] - state_a[1], state_b[0] - state_a[0]);
+    double o_change = atan2(sin(state_b[2]) - sin(state_a[2]),
+                            cos(state_b[2]) - cos(state_a[2]));
+
+    double reverse_cost =
+        std::abs(atan2(sin(alpha - o_change), cos(alpha - o_change))) < 0.5
+            ? 0.0
+            : 1.0;
 
     double x = state_b[0];
     double y = state_b[1];
 
+    double mod_cost = 0.0;
     switch (map_type_) {
     case MapType::GMMTMap:
       mod_cost = getGMMTMapCost(x, y, alpha);
@@ -112,7 +118,8 @@ ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost(
     }
 
     total_cost += (weight_d_ * this_distance) + (weight_q_ * q_dist) +
-                  (mod_cost * weight_c_);
+                  (mod_cost * weight_c_) +
+                  (reverse_cost * weight_d_ * this_distance);
     si_->freeState(intermediate_states[i]);
   }
   si_->freeState(intermediate_states[intermediate_states.size() - 1]);

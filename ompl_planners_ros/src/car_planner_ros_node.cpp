@@ -24,6 +24,7 @@
 #include <nav_msgs/GetMap.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Path.h>
+#include <std_msgs/String.h>
 #include <std_msgs/Empty.h>
 
 #include <mrpt/math/CPolygon.h>
@@ -51,7 +52,7 @@ class CarPlannerROSNode {
    std::shared_ptr<gmmtmap_ros::GMMTMapClient> gmmtmap_client;
    ros::ServiceClient map_client;
 
-   ros::Publisher path_pub;
+   ros::Subscriber save_path_sub;
 
    geometry_msgs::PosePtr start_pose;
    geometry_msgs::PoseArrayPtr poses_ptr;
@@ -60,9 +61,7 @@ class CarPlannerROSNode {
 
  public:
   CarPlannerROSNode() : nh("~") {
-    path_pub = nh.advertise<geometry_msgs::PoseArray>("path", 1);
     map_client = private_nh.serviceClient<nav_msgs::GetMap>("static_map");
-
     map_client.waitForExistence();
 
     nav_msgs::GetMap get_map_;
@@ -167,9 +166,29 @@ class CarPlannerROSNode {
       ROS_WARN_STREAM("Wrong or missing 'mod_type' parameter. Not using MoDs "
                       "for planning.");
     }
+
+    save_path_sub = this->private_nh.subscribe("save_path", 1, &CarPlannerROSNode::savePathCallback, this);
   }
 
   virtual ~CarPlannerROSNode() = default;
+
+  void savePathCallback(
+      const std_msgs::String& msg
+      ) {
+    ROS_INFO_STREAM("\x1b[34mSaving path to file: " << msg.data.c_str());
+    std::ofstream ofile(msg.data.c_str(), std::ios::out);
+    if(!ofile) {
+      ROS_ERROR_STREAM("Couldn't open paths file!");
+      return;
+    }
+
+    for(const auto& pose : poses_ptr->poses) {
+      ofile << pose.position.x << ", " << pose.position.y << ", " << 2 * atan2(pose.orientation.z, pose.orientation.w) << std::endl;
+    }
+
+    ofile.close();
+    ROS_INFO_STREAM("Successfully saved path to file: " << msg.data.c_str());
+  }
 
   void solutionCallback(
       const ompl::base::Planner* planner,

@@ -76,9 +76,18 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
     // 4b. Compute the quaternion distance.
     double q_dist = (1.0 - dot*dot);
 
+    double alpha = atan2(state_b[1] - state_a[1], state_b[0] - state_a[0]);
+    double o_change = atan2(sin(state_b[2]) - sin(state_a[2]),
+                            cos(state_b[2]) - cos(state_a[2]));
+
+    double reverse_cost =
+        std::abs(atan2(sin(alpha - o_change), cos(alpha - o_change))) < 0.5
+            ? 0.0
+            : 1.0;
+
     double cliffcost = 0.0;
     Eigen::Vector2d V;
-    V[0] = atan2(state_b[1] - state_a[1], state_b[0] - state_a[0]);
+    V[0] = alpha;
     V[1] = max_vehicle_speed;
 
     double x = state_b[0];
@@ -123,7 +132,8 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
     }
 
     total_cost += (weight_d_ * this_distance) + (weight_q_ * q_dist) +
-                  (cliffcost * weight_c_);
+                  (cliffcost * weight_c_) +
+                  (reverse_cost * weight_d_ * this_distance);
     si_->freeState(intermediate_states[i]);
   }
   si_->freeState(intermediate_states[intermediate_states.size() - 1]);

@@ -2,8 +2,8 @@
 Changelog for package ompl_planners_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2019-10-02)
+------------------
 * Add more maps
 * GMMT planning works
 * Contributors: Chittaranjan Swaminathan

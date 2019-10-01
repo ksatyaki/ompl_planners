@@ -4,7 +4,7 @@ Changelog for package ompl_mod_objectives
 
 Forthcoming
 -----------
-* Modify upstream criterion obj to use gmmt optionally
+* Modify upstream criterion objective to use GMMT-map, optionally
 * Contributors: Chittaranjan Swaminathan
 
 0.0.6 (2019-06-10)

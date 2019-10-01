@@ -2,6 +2,12 @@
 Changelog for package ompl_planners_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add more maps
+* GMMT planning works
+* Contributors: Chittaranjan Swaminathan
+
 0.0.6 (2019-06-10)
 ------------------
 * Fix install target for param folder.
@@ -27,4 +33,4 @@ Changelog for package ompl_planners_ros
 * Add ncfm maps
 * Adjust licenses
 * Refactoring - further
-* Contributors: Chittaranjan Srinivas Swaminathan, Chittaranjan Swaminathan
+* Contributors: Chittaranjan Srinivas Swaminathan

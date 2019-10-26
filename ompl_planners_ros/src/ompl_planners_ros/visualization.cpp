@@ -87,8 +87,8 @@ void Visualization::setMarkerCommonProperties(
   marker->pose.orientation.z = 0.0;
   marker->pose.orientation.w = 1.0;
 
-  marker->scale.x = 0.005;
-  marker->scale.y = 0.005;
+  marker->scale.x = 0.01;
+  marker->scale.y = 0.01;
 
   // TODO: Customizable?
   marker->color.r = 0.3;

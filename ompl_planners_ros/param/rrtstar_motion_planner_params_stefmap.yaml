@@ -1,7 +1,7 @@
 RRTStarMotionPlanner:
   footprint: [[0.5, 0.2], [0.5, -0.2], [-0.2, -0.2], [-0.2, 0.2]]
   planner:
-    mod_type: CLiFF-map
+    mod_type: STeF-map
     planning_time: 300.0
     weight_q: 1.0
     weight_c: 0.02

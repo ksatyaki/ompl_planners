@@ -10,7 +10,7 @@
     <arg name="occmap" default="simple" />
 
     <!-- Parameters -->
-    <rosparam file="$(find ompl_planners_ros)/param/rrtstar_motion_planner_params.yaml" command="load"/>
+    <rosparam file="$(find ompl_planners_ros)/param/rrtstar_motion_planner_params_stefmap.yaml" command="load"/>
 
     <!-- Nodes -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(find ompl_planners_ros)/maps/$(arg occmap).yaml"/>
@@ -22,7 +22,6 @@
     <node name="RRTStarMotionPlanner" type="car_planner_ros_node" pkg="ompl_planners_ros" launch-prefix="$(arg launch_prefix)">
         <remap from="goal" to="move_base_simple/goal"/>
         <remap from="start" to="move_base_simple/start"/>
-        <param name="planner/mod_type" value="STeF-map"/>
     </node>
 
 </launch>

@@ -23,7 +23,13 @@
 namespace ompl {
 namespace mod {
 
-enum class MapType { STeFMap = 0, GMMTMap = 1, CLiFFMap = 2, NOTSET = 101};
+enum class MapType {
+  STeFMap = 0,
+  GMMTMap = 1,
+  CLiFFMap = 2,
+  WHyTeMap = 3,
+  NOTSET = 101
+};
 
 class MoDOptimizationObjective : public ompl::base::OptimizationObjective {
 protected:
@@ -39,27 +45,27 @@ protected:
   MapType map_type_{MapType::NOTSET};
 
   inline MoDOptimizationObjective(const ompl::base::SpaceInformationPtr &si,
-                           double weight_d, double weight_q, double weight_c,
-                           MapType map_type)
+                                  double weight_d, double weight_q,
+                                  double weight_c, MapType map_type)
       : ompl::base::OptimizationObjective(si), weight_d_(weight_d),
         weight_q_(weight_q), weight_c_(weight_c), map_type_(map_type) {}
 
 public:
   inline std::string getMapTypeStr() const {
-    switch(map_type_) {
+    switch (map_type_) {
     case MapType::STeFMap:
       return "STeF-map";
     case MapType::GMMTMap:
       return "GMMT-map";
     case MapType::CLiFFMap:
       return "CLiFF-map";
+    case MapType::WHyTeMap:
+      return "WHyTe-map";
     default:
       return "Not set.";
     }
   }
-  inline MapType getMapType() const {
-    return map_type_;
-  }
+  inline MapType getMapType() const { return map_type_; }
 };
 } // namespace mod
 }

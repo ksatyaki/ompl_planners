@@ -31,7 +31,7 @@ ompl::mod::DTCOptimizationObjective::DTCOptimizationObjective(
       cliffmap(cliffmap) {
   description_ = "DownTheCLiFF Cost";
 
-  // Setup a default cost-to-go heuristics:
+  // Setup a default cost-to-go heuristic:
   setCostToGoHeuristic(ompl::base::goalRegionCostToGo);
 }
 

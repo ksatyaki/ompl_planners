@@ -33,7 +33,7 @@ namespace mod {
  * This is a multi-optimization objective but doens't derive from the
  * corresponding OMPL class.
  */
-class DTCOptimizationObjective : public ompl::mod::MoDOptimizationObjective {
+class DTCOptimizationObjective : public MoDOptimizationObjective {
 
   /// Maximum vehicle speed used in the computation of Down-The-CLiFF cost.
   double max_vehicle_speed;
@@ -50,7 +50,7 @@ class DTCOptimizationObjective : public ompl::mod::MoDOptimizationObjective {
                            const cliffmap_ros::CLiFFMap &cliffmap, double wd,
                            double wq, double wc, double maxvs);
 
-  virtual ~DTCOptimizationObjective() {}
+  virtual ~DTCOptimizationObjective() = default;
 
   virtual bool isSymmetric() const override { return false; }
 

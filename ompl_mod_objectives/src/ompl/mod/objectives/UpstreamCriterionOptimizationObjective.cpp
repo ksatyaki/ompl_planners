@@ -43,6 +43,18 @@ ompl::mod::UpstreamCriterionOptimizationObjective::
   setCostToGoHeuristic(ompl::base::goalRegionCostToGo);
 }
 
+ompl::mod::UpstreamCriterionOptimizationObjective::
+    UpstreamCriterionOptimizationObjective(
+        const ompl::base::SpaceInformationPtr &si,
+        const cliffmap_ros::CLiFFMap &cliffmap, double wd, double wq, double wc)
+    : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::CLiFFMap),
+      cliffmap(new cliffmap_ros::CLiFFMap(cliffmap)) {
+  description_ = "DownTheCLiFF Cost";
+
+  // Setup a default cost-to-go heuristic:
+  setCostToGoHeuristic(ompl::base::goalRegionCostToGo);
+}
+
 ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::stateCost(
     const ompl::base::State *s) const {
   return this->identityCost();
@@ -109,6 +121,9 @@ ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost(
     case MapType::STeFMap:
       mod_cost = getSTeFMapCost(x, y, alpha);
       break;
+    case MapType::CLiFFMap:
+      mod_cost = getCLiFFMapCost(x, y, alpha);
+      break;
     default:
       ROS_WARN_THROTTLE(2,
                         "Warning: motionCost() called with MapType: %s. "
@@ -151,5 +166,16 @@ double ompl::mod::UpstreamCriterionOptimizationObjective::getGMMTMapCost(
                 (1 - cos(alpha - beta));
   }
 
+  return mod_cost;
+}
+
+double ompl::mod::UpstreamCriterionOptimizationObjective::getCLiFFMapCost(
+    double x, double y, double alpha) const {
+  double mod_cost = 0.0;
+  const cliffmap_ros::CLiFFMapLocation &cl = (*cliffmap)(x, y);
+
+  for (const auto &dist : cl.distributions) {
+    mod_cost += dist.getMeanSpeed() * (1 - cos(dist.getMeanHeading() - alpha));
+  }
   return mod_cost;
 }

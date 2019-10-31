@@ -18,9 +18,10 @@
 
 #pragma once
 
-#include <stefmap_ros/stefmap.hpp>
+#include <cliffmap_ros/cliffmap.hpp>
 #include <gmmtmap_ros/gmmtmap.hpp>
 #include <ompl/mod/objectives/MoDOptimizationObjective.h>
+#include <stefmap_ros/stefmap.hpp>
 
 namespace ompl {
 namespace mod {
@@ -32,7 +33,9 @@ class UpstreamCriterionOptimizationObjective
 
   gmmtmap_ros::GMMTMapPtr gmmtmap;
 
- public:
+  cliffmap_ros::CLiFFMapPtr cliffmap;
+
+public:
   UpstreamCriterionOptimizationObjective(
       const ompl::base::SpaceInformationPtr &si,
       const stefmap_ros::STeFMap &stefmap, float wd, float wq, float wc);
@@ -40,6 +43,10 @@ class UpstreamCriterionOptimizationObjective
   UpstreamCriterionOptimizationObjective(
       const ompl::base::SpaceInformationPtr &si,
       const gmmtmap_ros::GMMTMap &gmmtmap, float wd, float wq, float wc);
+
+  UpstreamCriterionOptimizationObjective(
+      const ompl::base::SpaceInformationPtr &si,
+      const cliffmap_ros::CLiFFMap &cliffmap, double wd, double wq, double wc);
 
   virtual inline bool isSymmetric() const override { return false; }
 
@@ -52,8 +59,11 @@ class UpstreamCriterionOptimizationObjective
 
   double getGMMTMapCost(double x, double y, double alpha) const;
 
-  ompl::base::Cost motionCostHeuristic(
-      const ompl::base::State *s1, const ompl::base::State *s2) const override;
+  double getCLiFFMapCost(double x, double y, double alpha) const;
+
+  ompl::base::Cost
+  motionCostHeuristic(const ompl::base::State *s1,
+                      const ompl::base::State *s2) const override;
 
   virtual ~UpstreamCriterionOptimizationObjective() {}
 };

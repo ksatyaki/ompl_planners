@@ -32,6 +32,7 @@ find_package(catkin REQUIRED
   cliffmap_ros
   stefmap_ros
   gmmtmap_ros
+  whytemap_ros
 )
 
 include_directories(
@@ -44,7 +45,7 @@ include_directories(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ompl_mod_objectives
-  CATKIN_DEPENDS roscpp cliffmap_ros stefmap_ros gmmtmap_ros
+  CATKIN_DEPENDS roscpp cliffmap_ros stefmap_ros gmmtmap_ros whytemap_ros
   DEPENDS OMPL Eigen3
 )
 
@@ -52,7 +53,7 @@ add_library(ompl_mod_objectives
   SHARED
   src/ompl/mod/objectives/DTCOptimizationObjective.cpp
   src/ompl/mod/objectives/UpstreamCriterionOptimizationObjective.cpp
-)
+  src/ompl/mod/objectives/DTWOptimizationObjective.cpp include/ompl/mod/objectives/DTWOptimizationObjective.h)
 
 add_dependencies(ompl_mod_objectives ${catkin_EXPORTED_TARGETS})
 

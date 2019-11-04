@@ -49,7 +49,7 @@ ompl::mod::UpstreamCriterionOptimizationObjective::
         const cliffmap_ros::CLiFFMap &cliffmap, double wd, double wq, double wc)
     : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::CLiFFMap),
       cliffmap(new cliffmap_ros::CLiFFMap(cliffmap)) {
-  description_ = "DownTheCLiFF Cost";
+  description_ = "Upstream Cost over CLiFF-map";
 
   // Setup a default cost-to-go heuristic:
   setCostToGoHeuristic(ompl::base::goalRegionCostToGo);

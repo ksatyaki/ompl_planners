@@ -81,6 +81,9 @@ ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost(
                        true);
 
   double total_cost = 0.0;
+  this->cost_d_ = 0.0;
+  this->cost_q_ = 0.0;
+  this->cost_c_ = 0.0;
 
   for (unsigned int i = 0; i < intermediate_states.size() - 1; i++) {
     std::array<double, 3> state_a{
@@ -95,38 +98,41 @@ ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost(
     double dot = cos((state_b[2] - state_a[2]) / 2.0);
 
     // 4a. Compute Euclidean distance.
-    double this_distance =
+    double cost_d =
         si_->distance(intermediate_states[i], intermediate_states[i + 1]);
 
     // 4b. Compute the quaternion distance.
-    double q_dist = (1.0 - dot * dot);
+    double cost_q = (1.0 - dot * dot);
 
     double alpha = atan2(state_b[1] - state_a[1], state_b[0] - state_a[0]);
 
     double x = state_b[0];
     double y = state_b[1];
 
-    double mod_cost = 0.0;
+    double cost_c = 0.0;
     switch (map_type_) {
     case MapType::GMMTMap:
-      mod_cost = getGMMTMapCost(x, y, alpha);
+      cost_c = getGMMTMapCost(x, y, alpha);
       break;
     case MapType::STeFMap:
-      mod_cost = getSTeFMapCost(x, y, alpha);
+      cost_c = getSTeFMapCost(x, y, alpha);
       break;
     case MapType::CLiFFMap:
-      mod_cost = getCLiFFMapCost(x, y, alpha);
+      cost_c = getCLiFFMapCost(x, y, alpha);
       break;
     default:
       ROS_WARN_THROTTLE(2,
                         "Warning: motionCost() called with MapType: %s. "
                         "Returning identity cost.",
                         getMapTypeStr().c_str());
-      mod_cost = this->identityCost().value();
+      cost_c = this->identityCost().value();
     }
 
-    total_cost += (weight_d_ * this_distance) + (weight_q_ * q_dist) +
-                  (mod_cost * weight_c_);
+    total_cost += (weight_d_ * cost_d) + (weight_q_ * cost_q) +
+                  (weight_c_ * cost_c);
+    cost_c_ += cost_c;
+    cost_d_ += cost_d;
+    cost_q_ += cost_q;
     si_->freeState(intermediate_states[i]);
   }
   si_->freeState(intermediate_states[intermediate_states.size() - 1]);

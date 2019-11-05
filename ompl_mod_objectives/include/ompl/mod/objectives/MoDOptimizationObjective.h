@@ -42,6 +42,15 @@ protected:
   /// The weight associated with Down-The-CLiFF cost.
   double weight_c_;
 
+  /// The last computed distance cost
+  mutable double cost_d_;
+
+  /// The last computed quaternion distance cost
+  mutable double cost_q_;
+
+  /// The last computed MoD cost
+  mutable double cost_c_;
+
   MapType map_type_{MapType::NOTSET};
 
   inline MoDOptimizationObjective(const ompl::base::SpaceInformationPtr &si,
@@ -51,6 +60,10 @@ protected:
         weight_q_(weight_q), weight_c_(weight_c), map_type_(map_type) {}
 
 public:
+  inline double getLastCostD() { return cost_d_; }
+  inline double getLastCostQ() { return cost_q_; }
+  inline double getLastCostC() { return cost_c_; }
+
   inline std::string getMapTypeStr() const {
     switch (map_type_) {
     case MapType::STeFMap:

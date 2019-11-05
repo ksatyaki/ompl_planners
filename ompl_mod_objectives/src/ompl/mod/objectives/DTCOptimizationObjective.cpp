@@ -55,6 +55,9 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
                        true);
 
   double total_cost = 0.0;
+  this->cost_d_ = 0.0;
+  this->cost_q_ = 0.0;
+  this->cost_c_ = 0.0;
 
   for (unsigned int i = 0; i < intermediate_states.size() - 1; i++) {
     std::array<double, 3> state_a{
@@ -70,15 +73,15 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
                  sin(state_b[2] / 2.0) * sin(state_a[2] / 2.0);
 
     // 4a. Compute Euclidean distance.
-    double this_distance =
+    double cost_d =
         si_->distance(intermediate_states[i], intermediate_states[i + 1]);
 
     // 4b. Compute the quaternion distance.
-    double q_dist = (1.0 - dot*dot);
+    double cost_q = (1.0 - dot*dot);
 
     double alpha = atan2(state_b[1] - state_a[1], state_b[0] - state_a[0]);
 
-    double cliffcost = 0.0;
+    double cost_c = 0.0;
     Eigen::Vector2d V;
     V[0] = alpha;
     V[1] = max_vehicle_speed;
@@ -110,22 +113,25 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
         printf("WHAT THE HOLY?!");
       }
 
-      cliffcost += inc_cost;
+      cost_c += inc_cost;
 
-      if (std::isnan(cliffcost)) {
+      if (std::isnan(cost_c)) {
         std::cout << "Sigma: " << Sigma << std::endl;
         std::cout << "V: " << V << std::endl;
         std::cout << "myu: " << myu << std::endl;
         std::cout << "Trust: " << trust << std::endl;
         std::cout << "Incremental: " << inc_cost << std::endl;
-        printf("cliffcost: %lf\n", cliffcost);
+        printf("cost_c: %lf\n", cost_c);
         printf("_________________________\n");
         std::cout << "SHIT!" << std::endl;
       }
     }
 
-    total_cost += (weight_d_ * this_distance) + (weight_q_ * q_dist) +
-                  (cliffcost * weight_c_);
+    total_cost += (weight_d_ * cost_d) + (weight_q_ * cost_q) +
+                  (weight_c_ * cost_c);
+    cost_c_ += cost_c;
+    cost_d_ += cost_d;
+    cost_q_ += cost_q;
     si_->freeState(intermediate_states[i]);
   }
   si_->freeState(intermediate_states[intermediate_states.size() - 1]);

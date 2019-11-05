@@ -24,8 +24,8 @@
 #include <nav_msgs/GetMap.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Path.h>
-#include <std_msgs/String.h>
 #include <std_msgs/Empty.h>
+#include <std_msgs/String.h>
 
 #include <mrpt/math/CPolygon.h>
 
@@ -40,26 +40,26 @@
 #include <stefmap_ros/stefmap.hpp>
 
 class CarPlannerROSNode {
- protected:
+protected:
   ros::NodeHandle nh;
-   ros::NodeHandle private_nh;
+  ros::NodeHandle private_nh;
 
-   ompl_planners_ros::PlannerParameters pp;
-   ompl_planners_ros::VehicleParameters vp;
+  ompl_planners_ros::PlannerParameters pp;
+  ompl_planners_ros::VehicleParameters vp;
 
-   std::shared_ptr<stefmap_ros::STeFMapClient> stefmap_client;
-   std::shared_ptr<cliffmap_ros::CLiFFMapClient> cliffmap_client;
-   std::shared_ptr<gmmtmap_ros::GMMTMapClient> gmmtmap_client;
-   ros::ServiceClient map_client;
+  std::shared_ptr<stefmap_ros::STeFMapClient> stefmap_client;
+  std::shared_ptr<cliffmap_ros::CLiFFMapClient> cliffmap_client;
+  std::shared_ptr<gmmtmap_ros::GMMTMapClient> gmmtmap_client;
+  ros::ServiceClient map_client;
 
-   ros::Subscriber save_path_sub;
+  ros::Subscriber save_path_sub;
 
-   geometry_msgs::PosePtr start_pose;
-   geometry_msgs::PoseArrayPtr poses_ptr;
-   boost::shared_ptr<ompl_planners_ros::MultipleCirclesReedsSheppCarPlanner>
-       planner;
+  geometry_msgs::PosePtr start_pose;
+  geometry_msgs::PoseArrayPtr poses_ptr;
+  boost::shared_ptr<ompl_planners_ros::MultipleCirclesReedsSheppCarPlanner>
+      planner;
 
- public:
+public:
   CarPlannerROSNode() : nh("~") {
     map_client = private_nh.serviceClient<nav_msgs::GetMap>("static_map");
     map_client.waitForExistence();
@@ -86,7 +86,7 @@ class CarPlannerROSNode {
     std::vector<geometry_msgs::Point> ftprnt =
         costmap_2d::makeFootprintFromParams(nh);
 
-    for (const auto& ftprntpt : ftprnt) {
+    for (const auto &ftprntpt : ftprnt) {
       ROS_INFO_STREAM(std::fixed << std::setprecision(2) << "\x1b[34m("
                                  << ftprntpt.x << "," << ftprntpt.y << ")");
       vp.footprint.AddVertex(ftprntpt.x, ftprntpt.y);
@@ -167,23 +167,23 @@ class CarPlannerROSNode {
                       "for planning.");
     }
 
-    save_path_sub = this->private_nh.subscribe("save_path", 1, &CarPlannerROSNode::savePathCallback, this);
+    save_path_sub = this->private_nh.subscribe(
+        "save_path", 1, &CarPlannerROSNode::savePathCallback, this);
   }
 
   virtual ~CarPlannerROSNode() = default;
 
-  void savePathCallback(
-      const std_msgs::String& msg
-      ) {
+  void savePathCallback(const std_msgs::String &msg) {
     ROS_INFO_STREAM("\x1b[34mSaving path to file: " << msg.data.c_str());
     std::ofstream ofile(msg.data.c_str(), std::ios::out);
-    if(!ofile) {
+    if (!ofile) {
       ROS_ERROR_STREAM("Couldn't open paths file!");
       return;
     }
 
-    for(const auto& pose : poses_ptr->poses) {
-      ofile << pose.position.x << ", " << pose.position.y << ", " << 2 * atan2(pose.orientation.z, pose.orientation.w) << std::endl;
+    for (const auto &pose : poses_ptr->poses) {
+      ofile << pose.position.x << ", " << pose.position.y << ", "
+            << 2 * atan2(pose.orientation.z, pose.orientation.w) << std::endl;
     }
 
     ofile.close();
@@ -191,8 +191,8 @@ class CarPlannerROSNode {
   }
 
   void solutionCallback(
-      const ompl::base::Planner* planner,
-      const std::vector<const ompl::base::State*>& solution_states,
+      const ompl::base::Planner *planner,
+      const std::vector<const ompl::base::State *> &solution_states,
       const ompl::base::Cost cost) {
     ROS_INFO_STREAM("New solution found with cost: \x1b[34m"
                     << std::fixed << std::setprecision(2) << cost.value());
@@ -217,7 +217,7 @@ class CarPlannerROSNode {
   }
 };
 
-int main(int argn, char* args[]) {
+int main(int argn, char *args[]) {
   ros::init(argn, args, "rscp_node");
 
   CarPlannerROSNode cprn;

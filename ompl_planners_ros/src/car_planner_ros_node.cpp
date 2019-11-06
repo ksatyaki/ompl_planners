@@ -54,8 +54,9 @@ protected:
 
   ros::Subscriber save_path_sub;
 
-  geometry_msgs::PosePtr start_pose;
-  geometry_msgs::PoseArrayPtr poses_ptr;
+  geometry_msgs::Pose2DPtr start_pose;
+  geometry_msgs::Pose2DPtr goal_pose;
+  boost::shared_ptr<std::vector<geometry_msgs::Pose2D>> poses_ptr;
   boost::shared_ptr<ompl_planners_ros::MultipleCirclesReedsSheppCarPlanner>
       planner;
 
@@ -181,9 +182,8 @@ public:
       return;
     }
 
-    for (const auto &pose : poses_ptr->poses) {
-      ofile << pose.position.x << ", " << pose.position.y << ", "
-            << 2 * atan2(pose.orientation.z, pose.orientation.w) << std::endl;
+    for (const auto &pose : *poses_ptr) {
+      ofile << pose.x << ", " << pose.y << ", " << pose.theta << std::endl;
     }
 
     ofile.close();
@@ -200,18 +200,30 @@ public:
 
   void callback_fn(const geometry_msgs::PoseStampedConstPtr &msg, bool start) {
     if (start) {
-      start_pose = geometry_msgs::PosePtr(new geometry_msgs::Pose);
-      *start_pose = msg->pose;
+      start_pose = geometry_msgs::Pose2DPtr(new geometry_msgs::Pose2D);
+      start_pose->x = msg->pose.position.x;
+      start_pose->y = msg->pose.position.y;
+      start_pose->theta =
+          2 * atan2(msg->pose.orientation.z, msg->pose.orientation.w);
     } else {
       if (!start_pose) {
         ROS_INFO_STREAM("\x1b[93mUse RViz to select the start pose first.");
         return;
       }
+      // Reset previous solution path.
       poses_ptr.reset();
-      poses_ptr = geometry_msgs::PoseArrayPtr(new geometry_msgs::PoseArray);
-      poses_ptr->header.frame_id = "map";
-      poses_ptr->header.stamp = ros::Time::now();
-      planner->plan(*start_pose, msg->pose, poses_ptr.get());
+      poses_ptr = boost::shared_ptr<std::vector<geometry_msgs::Pose2D>>(
+          new std::vector<geometry_msgs::Pose2D>);
+
+      // Assign new goal.
+      goal_pose = geometry_msgs::Pose2DPtr(new geometry_msgs::Pose2D);
+      goal_pose->x = msg->pose.position.x;
+      goal_pose->y = msg->pose.position.y;
+      goal_pose->theta =
+          2 * atan2(msg->pose.orientation.z, msg->pose.orientation.w);
+
+      // Plan.
+      planner->plan(*start_pose, *goal_pose, poses_ptr.get());
       ROS_INFO_STREAM("\x1b[34mPLANNING COMPLETE!");
     }
   }

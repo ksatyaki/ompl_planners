@@ -24,11 +24,10 @@
 
 ompl::mod::DTCOptimizationObjective::DTCOptimizationObjective(
     const ompl::base::SpaceInformationPtr &si,
-    const cliffmap_ros::CLiFFMap& cliffmap, double wd, double wq, double wc,
+    const cliffmap_ros::CLiFFMap &cliffmap, double wd, double wq, double wc,
     double maxvs)
     : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::CLiFFMap),
-      max_vehicle_speed(maxvs),
-      cliffmap(cliffmap) {
+      max_vehicle_speed(maxvs), cliffmap(cliffmap) {
   description_ = "DownTheCLiFF Cost";
 
   // Setup a default cost-to-go heuristic:
@@ -37,7 +36,7 @@ ompl::mod::DTCOptimizationObjective::DTCOptimizationObjective(
 
 ompl::base::Cost ompl::mod::DTCOptimizationObjective::stateCost(
     const ompl::base::State *s) const {
-  return this->identityCost();
+  return ompl::base::Cost(0.0);
 }
 
 ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
@@ -55,9 +54,9 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
                        true);
 
   double total_cost = 0.0;
-  this->cost_d_ = 0.0;
-  this->cost_q_ = 0.0;
-  this->cost_c_ = 0.0;
+  this->last_cost_.cost_d_ = 0.0;
+  this->last_cost_.cost_q_ = 0.0;
+  this->last_cost_.cost_c_ = 0.0;
 
   for (unsigned int i = 0; i < intermediate_states.size() - 1; i++) {
     std::array<double, 3> state_a{
@@ -77,7 +76,7 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
         si_->distance(intermediate_states[i], intermediate_states[i + 1]);
 
     // 4b. Compute the quaternion distance.
-    double cost_q = (1.0 - dot*dot);
+    double cost_q = (1.0 - dot * dot);
 
     double alpha = atan2(state_b[1] - state_a[1], state_b[0] - state_a[0]);
 
@@ -127,11 +126,11 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
       }
     }
 
-    total_cost += (weight_d_ * cost_d) + (weight_q_ * cost_q) +
-                  (weight_c_ * cost_c);
-    cost_c_ += cost_c;
-    cost_d_ += cost_d;
-    cost_q_ += cost_q;
+    total_cost +=
+        (weight_d_ * cost_d) + (weight_q_ * cost_q) + (weight_c_ * cost_c);
+    this->last_cost_.cost_c_ += cost_c;
+    this->last_cost_.cost_d_ += cost_d;
+    this->last_cost_.cost_q_ += cost_q;
     si_->freeState(intermediate_states[i]);
   }
   si_->freeState(intermediate_states[intermediate_states.size() - 1]);

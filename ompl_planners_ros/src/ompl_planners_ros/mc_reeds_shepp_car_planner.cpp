@@ -24,8 +24,7 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
     const PlannerParameters &planner_params,
     const VehicleParameters &vehicle_params,
     const nav_msgs::OccupancyGridConstPtr &occ_map_ptr)
-    : no_map_(false),
-      vehicle_params_(vehicle_params),
+    : no_map_(false), vehicle_params_(vehicle_params),
       planner_params_(planner_params) {
   grid_map_.setSize(
       occ_map_ptr->info.origin.position.x,
@@ -85,10 +84,10 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
   std::vector<double> x_coords_, y_coords_;
   vehicle_params_.footprint.getAllVertices(x_coords_, y_coords_);
 
-  si->setStateValidityChecker(
-      ob::StateValidityCheckerPtr(new MultipleCircleStateValidityChecker(
-          si, grid_map_, vehicle_params_.inflation_radius, x_coords_,
-          y_coords_)));
+  si->setStateValidityChecker(ob::StateValidityCheckerPtr(
+      new MultipleCircleStateValidityChecker(si, grid_map_,
+                                             vehicle_params_.inflation_radius,
+                                             x_coords_, y_coords_)));
 
   // ************************* //
   // PLANNER                   //
@@ -104,7 +103,7 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
 
   ROS_INFO_STREAM(
       "State validity checking resolution: "
-          << ss->getSpaceInformation()->getStateValidityCheckingResolution());
+      << ss->getSpaceInformation()->getStateValidityCheckingResolution());
   ROS_INFO_STREAM("Longest valid segment length is "
                   << ss->getStateSpace()->getLongestValidSegmentLength());
   ROS_INFO_STREAM(
@@ -114,8 +113,9 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
 }
 
 bool MultipleCirclesReedsSheppCarPlanner::plan(
-    const geometry_msgs::Pose &startState, const geometry_msgs::Pose &goalState,
-    geometry_msgs::PoseArray *path) {
+    const geometry_msgs::Pose2D &startState,
+    const geometry_msgs::Pose2D &goalState,
+    std::vector<geometry_msgs::Pose2D> *path) {
   ss->clearStartStates();
   ss->clear();
 
@@ -125,13 +125,13 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
       goal(ss->getSpaceInformation()->getStateSpace());
 
   // set the start and goal states
-  start[0] = startState.position.x;
-  start[1] = startState.position.y;
-  start[2] = 2 * atan2(startState.orientation.z, startState.orientation.w);
+  start[0] = startState.x;
+  start[1] = startState.y;
+  start[2] = startState.theta;
 
-  goal[0] = goalState.position.x;
-  goal[1] = goalState.position.y;
-  goal[2] = 2 * atan2(goalState.orientation.z, goalState.orientation.w);
+  goal[0] = goalState.x;
+  goal[1] = goalState.y;
+  goal[2] = goalState.theta;
   ss->setStartAndGoalStates(start, goal);
 
   ROS_INFO_STREAM(std::fixed << std::setprecision(2) << "Start state: \x1b[34m("
@@ -152,15 +152,14 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
     std::vector<ob::State *> states = pth.getStates();
     std::vector<double> reals;
 
-    path->poses.clear();
-    path->poses.resize(states.size());
+    path->clear();
+    path->resize(states.size());
 
     for (unsigned i = 0; i < states.size(); i++) {
       ss->getStateSpace()->copyToReals(reals, states[i]);
-      path->poses[i].position.x = reals[0];
-      path->poses[i].position.y = reals[1];
-      path->poses[i].orientation.z = sin(reals[2] / 2);
-      path->poses[i].orientation.w = cos(reals[2] / 2);
+      (*path)[i].x = reals[0];
+      (*path)[i].y = reals[1];
+      (*path)[i].theta = reals[2];
     }
 
     if (this->planner_params_.publish_viz_markers) {
@@ -175,4 +174,4 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
   ROS_WARN_STREAM("\x1b[93mNo solution found");
   return 0;
 }
-}  // namespace ompl_planners_ros
+} // namespace ompl_planners_ros

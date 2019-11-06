@@ -20,7 +20,7 @@ DTWOptimizationObjective::DTWOptimizationObjective(
 
 ompl::base::Cost DTWOptimizationObjective::stateCost(
     const ompl::base::State *s) const {
-  return this->identityCost();
+  return ompl::base::Cost(0.0);
 }
 
 ompl::base::Cost DTWOptimizationObjective::motionCostHeuristic(
@@ -43,9 +43,9 @@ ompl::base::Cost ompl::mod::DTWOptimizationObjective::motionCost(
                        true);
 
   double total_cost = 0.0;
-  this->cost_d_ = 0.0;
-  this->cost_q_ = 0.0;
-  this->cost_c_ = 0.0;
+  this->last_cost_.cost_d_ = 0.0;
+  this->last_cost_.cost_q_ = 0.0;
+  this->last_cost_.cost_c_ = 0.0;
 
   for (unsigned int i = 0; i < intermediate_states.size() - 1; i++) {
     std::array<double, 3> state_a{
@@ -77,9 +77,9 @@ ompl::base::Cost ompl::mod::DTWOptimizationObjective::motionCost(
 
     total_cost += (weight_d_ * cost_d) + (weight_q_ * cost_q) +
                   (weight_c_ * cost_c);
-    cost_c_ += cost_c;
-    cost_d_ += cost_d;
-    cost_q_ += cost_q;
+    this->last_cost_.cost_c_ += cost_c;
+    this->last_cost_.cost_d_ += cost_d;
+    this->last_cost_.cost_q_ += cost_q;
     si_->freeState(intermediate_states[i]);
   }
   si_->freeState(intermediate_states[intermediate_states.size() - 1]);

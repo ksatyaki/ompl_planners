@@ -23,13 +23,13 @@
 #include "ompl_planners_ros/mc_state_validity_checker.hpp"
 #include "ompl_planners_ros/visualization.hpp"
 
-#include <geometry_msgs/PoseArray.h>
+#include <geometry_msgs/Pose2D.h>
 #include <nav_msgs/OccupancyGrid.h>
 
-#include <ompl/geometric/planners/rrt/RRTstar.h>
-#include <ompl/geometric/planners/prm/PRMstar.h>
-#include <ompl/geometric/planners/fmt/FMT.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
+#include <ompl/geometric/planners/fmt/FMT.h>
+#include <ompl/geometric/planners/prm/PRMstar.h>
+#include <ompl/geometric/planners/rrt/RRTstar.h>
 
 namespace mm = mrpt::maps;
 namespace ob = ompl::base;
@@ -129,7 +129,7 @@ class MultipleCirclesReedsSheppCarPlanner {
    */
   VehicleParameters vehicle_params_;
 
- public:
+public:
   /**
    * OMPL simple setup.
    */
@@ -158,8 +158,8 @@ class MultipleCirclesReedsSheppCarPlanner {
    * @param path A pointer to where the solution should be stored.
    * @return True if success. False otherwise.
    */
-  bool plan(const geometry_msgs::Pose &startState,
-            const geometry_msgs::Pose &goalState,
-            geometry_msgs::PoseArray *path);
+  bool plan(const geometry_msgs::Pose2D &startState,
+            const geometry_msgs::Pose2D &goalState,
+            std::vector<geometry_msgs::Pose2D> *path);
 };
-}
+} // namespace ompl_planners_ros

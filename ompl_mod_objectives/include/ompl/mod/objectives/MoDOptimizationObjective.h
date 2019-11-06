@@ -24,11 +24,30 @@ namespace ompl {
 namespace mod {
 
 enum class MapType {
-  STeFMap = 0,
-  GMMTMap = 1,
-  CLiFFMap = 2,
+  CLiFFMap = 0,
+  STeFMap = 1,
+  GMMTMap = 2,
   WHyTeMap = 3,
   NOTSET = 101
+};
+
+struct Cost {
+  /// The last computed distance cost
+  double cost_d_{0.0};
+
+  /// The last computed quaternion distance cost
+  double cost_q_{0.0};
+
+  /// The last computed MoD cost
+  double cost_c_{0.0};
+
+  inline Cost operator+(Cost b) {
+    Cost result;
+    result.cost_c_ = this->cost_c_ + b.cost_c_;
+    result.cost_d_ = this->cost_d_ + b.cost_d_;
+    result.cost_q_ = this->cost_q_ + b.cost_q_;
+    return result;
+  }
 };
 
 class MoDOptimizationObjective : public ompl::base::OptimizationObjective {
@@ -42,14 +61,7 @@ protected:
   /// The weight associated with Down-The-CLiFF cost.
   double weight_c_;
 
-  /// The last computed distance cost
-  mutable double cost_d_;
-
-  /// The last computed quaternion distance cost
-  mutable double cost_q_;
-
-  /// The last computed MoD cost
-  mutable double cost_c_;
+  mutable Cost last_cost_;
 
   MapType map_type_{MapType::NOTSET};
 
@@ -60,9 +72,10 @@ protected:
         weight_q_(weight_q), weight_c_(weight_c), map_type_(map_type) {}
 
 public:
-  inline double getLastCostD() { return cost_d_; }
-  inline double getLastCostQ() { return cost_q_; }
-  inline double getLastCostC() { return cost_c_; }
+  inline double getLastCostD() const { return last_cost_.cost_d_; }
+  inline double getLastCostQ() const { return last_cost_.cost_q_; }
+  inline double getLastCostC() const { return last_cost_.cost_c_; }
+  inline Cost getLastCost() const { return last_cost_; }
 
   inline std::string getMapTypeStr() const {
     switch (map_type_) {

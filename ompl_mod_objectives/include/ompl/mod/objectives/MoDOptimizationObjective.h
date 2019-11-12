@@ -93,5 +93,8 @@ public:
   }
   inline MapType getMapType() const { return map_type_; }
 };
+
+typedef std::shared_ptr<MoDOptimizationObjective> MoDOptimizationObjectivePtr;
+
 } // namespace mod
 }

@@ -72,7 +72,7 @@ ompl::base::Cost ompl::mod::DTWOptimizationObjective::motionCost(
     double x = state_b[0];
     double y = state_b[1];
 
-    double cost_c = whytemap.getLikelihood(this->timestamp, x, y, alpha, max_vehicle_speed);
+    double cost_c = whytemap.getCost(this->timestamp, x, y, alpha, max_vehicle_speed);
 
 
     total_cost += (weight_d_ * cost_d) + (weight_q_ * cost_q) +

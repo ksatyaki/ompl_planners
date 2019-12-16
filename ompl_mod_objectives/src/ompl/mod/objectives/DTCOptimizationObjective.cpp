@@ -112,18 +112,11 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
         printf("WHAT THE HOLY?!");
       }
 
-      cost_c += inc_cost;
-
-      if (std::isnan(cost_c)) {
-        std::cout << "Sigma: " << Sigma << std::endl;
-        std::cout << "V: " << V << std::endl;
-        std::cout << "myu: " << myu << std::endl;
-        std::cout << "Trust: " << trust << std::endl;
-        std::cout << "Incremental: " << inc_cost << std::endl;
-        printf("cost_c: %lf\n", cost_c);
-        printf("_________________________\n");
-        std::cout << "SHIT!" << std::endl;
+      if (std::isnan(inc_cost)) {
+        inc_cost = 10000.00;
       }
+
+      cost_c += inc_cost;
     }
 
     total_cost +=

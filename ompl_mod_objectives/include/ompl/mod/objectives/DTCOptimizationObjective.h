@@ -38,17 +38,21 @@ class DTCOptimizationObjective : public MoDOptimizationObjective {
   /// Maximum vehicle speed used in the computation of Down-The-CLiFF cost.
   double max_vehicle_speed;
 
+  /// Mahalanobis distance threshold.
+  double mahalanobis_distance_threshold;
+
   /// A std smart pointer to the CLiFFMap.
   cliffmap_ros::CLiFFMap cliffmap;
 
- public:
+public:
   /**
    * Constructor
    * @param si SpaceInformationPtr that we get from the problem setup.
    */
   DTCOptimizationObjective(const ompl::base::SpaceInformationPtr &si,
                            const cliffmap_ros::CLiFFMap &cliffmap, double wd,
-                           double wq, double wc, double maxvs);
+                           double wq, double wc, double maxvs,
+                           double mahalanobis_distance_threshold = 10.0);
 
   virtual ~DTCOptimizationObjective() = default;
 
@@ -59,8 +63,14 @@ class DTCOptimizationObjective : public MoDOptimizationObjective {
   ompl::base::Cost motionCost(const ompl::base::State *s1,
                               const ompl::base::State *s2) const override;
 
-  ompl::base::Cost motionCostHeuristic(
-      const ompl::base::State *s1, const ompl::base::State *s2) const override;
+  inline void
+  setMahalanobisDistanceThreshold(double mahalanobis_distance_threshold) {
+    this->mahalanobis_distance_threshold = mahalanobis_distance_threshold;
+  }
+
+  ompl::base::Cost
+  motionCostHeuristic(const ompl::base::State *s1,
+                      const ompl::base::State *s2) const override;
 };
-}
-}
+} // namespace mod
+} // namespace ompl

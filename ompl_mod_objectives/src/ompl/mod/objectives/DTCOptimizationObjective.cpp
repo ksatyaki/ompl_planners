@@ -25,7 +25,7 @@
 ompl::mod::DTCOptimizationObjective::DTCOptimizationObjective(
     const ompl::base::SpaceInformationPtr &si,
     const cliffmap_ros::CLiFFMap &cliffmap, double wd, double wq, double wc,
-    double maxvs)
+    double maxvs, double mahalanobis_distance_threshold)
     : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::CLiFFMap),
       max_vehicle_speed(maxvs), cliffmap(cliffmap) {
   description_ = "DownTheCLiFF Cost";
@@ -104,9 +104,14 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
       double inc_cost = 0.0;
       if (Sigma.determinant() < 1e-8 && Sigma.determinant() > -1e-8)
         inc_cost = 10000.00;
-      else
-        inc_cost =
-            sqrt((V - myu).transpose() * Sigma.inverse() * (V - myu)) * trust;
+      else {
+        double mahalanobis =
+            sqrt((V - myu).transpose() * Sigma.inverse() * (V - myu));
+        if (mahalanobis > 10.0)
+          mahalanobis = 10.0;
+
+        inc_cost = mahalanobis * trust;
+      }
 
       if (inc_cost < 0.0) {
         printf("WHAT THE HOLY?!");

@@ -103,7 +103,7 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
 
       double inc_cost = 0.0;
       if (Sigma.determinant() < 1e-8 && Sigma.determinant() > -1e-8)
-        inc_cost = 10000.00;
+        inc_cost = 10.0 * trust;
       else {
         double mahalanobis =
             sqrt((V - myu).transpose() * Sigma.inverse() * (V - myu));
@@ -118,7 +118,7 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
       }
 
       if (std::isnan(inc_cost)) {
-        inc_cost = 10000.00;
+        inc_cost = 10.0 * trust;
       }
 
       cost_c += inc_cost;

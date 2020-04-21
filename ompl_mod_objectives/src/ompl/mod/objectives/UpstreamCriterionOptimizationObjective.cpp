@@ -173,7 +173,7 @@ double ompl::mod::UpstreamCriterionOptimizationObjective::getCLiFFMapCost(
   const cliffmap_ros::CLiFFMapLocation &cl = (*cliffmap)(x, y);
 
   for (const auto &dist : cl.distributions) {
-    mod_cost += dist.getMeanSpeed() * (1 - cos(dist.getMeanHeading() - alpha));
+    mod_cost += dist.getMixingFactor() * (1 - cos(dist.getMeanHeading() - alpha));
   }
   return mod_cost;
 }

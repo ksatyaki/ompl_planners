@@ -41,6 +41,9 @@ class DTCOptimizationObjective : public MoDOptimizationObjective {
   /// Mahalanobis distance threshold.
   double mahalanobis_distance_threshold;
 
+  /// Will this cost objective use the mixing factor?
+  bool use_mixing_factor;
+
   /// A std smart pointer to the CLiFFMap.
   cliffmap_ros::CLiFFMap cliffmap;
 
@@ -52,7 +55,8 @@ public:
   DTCOptimizationObjective(const ompl::base::SpaceInformationPtr &si,
                            const cliffmap_ros::CLiFFMap &cliffmap, double wd,
                            double wq, double wc, double maxvs,
-                           double mahalanobis_distance_threshold = 10.0);
+                           double mahalanobis_distance_threshold = 10.0,
+                           bool use_mixing_factor = true);
 
   virtual ~DTCOptimizationObjective() = default;
 

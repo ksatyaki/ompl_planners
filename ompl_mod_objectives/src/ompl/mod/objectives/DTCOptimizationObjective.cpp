@@ -25,11 +25,12 @@
 ompl::mod::DTCOptimizationObjective::DTCOptimizationObjective(
     const ompl::base::SpaceInformationPtr &si,
     const cliffmap_ros::CLiFFMap &cliffmap, double wd, double wq, double wc,
-    double maxvs, double mahalanobis_distance_threshold)
+    double maxvs, double mahalanobis_distance_threshold, bool use_mixing_factor)
     : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::CLiFFMap),
-      max_vehicle_speed(maxvs), cliffmap(cliffmap) {
+      max_vehicle_speed(maxvs), cliffmap(cliffmap),
+      mahalanobis_distance_threshold(mahalanobis_distance_threshold),
+      use_mixing_factor(use_mixing_factor) {
   description_ = "DownTheCLiFF Cost";
-
   // Setup a default cost-to-go heuristic:
   setCostToGoHeuristic(ompl::base::goalRegionCostToGo);
 }
@@ -120,6 +121,9 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
       if (std::isnan(inc_cost)) {
         inc_cost = mahalanobis_distance_threshold * trust;
       }
+
+      if (use_mixing_factor)
+        inc_cost = inc_cost * dist.getMixingFactor();
 
       cost_c += inc_cost;
     }

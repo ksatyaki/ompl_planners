@@ -103,12 +103,12 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
 
       double inc_cost = 0.0;
       if (Sigma.determinant() < 1e-8 && Sigma.determinant() > -1e-8)
-        inc_cost = 10.0 * trust;
+        inc_cost = mahalanobis_distance_threshold * trust;
       else {
         double mahalanobis =
             sqrt((V - myu).transpose() * Sigma.inverse() * (V - myu));
-        if (mahalanobis > 10.0)
-          mahalanobis = 10.0;
+        if (mahalanobis > mahalanobis_distance_threshold)
+          mahalanobis = mahalanobis_distance_threshold;
 
         inc_cost = mahalanobis * trust;
       }
@@ -118,7 +118,7 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
       }
 
       if (std::isnan(inc_cost)) {
-        inc_cost = 10.0 * trust;
+        inc_cost = mahalanobis_distance_threshold * trust;
       }
 
       cost_c += inc_cost;

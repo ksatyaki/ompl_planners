@@ -84,7 +84,10 @@ public:
     case MapType::GMMTMap:
       return "GMMT-map";
     case MapType::CLiFFMap:
-      return "CLiFF-map";
+      if(this->weight_c_ == 0.0)
+        return "RRTStar";
+      else
+        return "CLiFF-map";
     case MapType::WHyTeMap:
       return "WHyTe-map";
     default:

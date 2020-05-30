@@ -145,7 +145,7 @@ double ompl::mod::UpstreamCriterionOptimizationObjective::getSTeFMapCost(
 
   const stefmap_ros::STeFMapCell &cell = (*stefmap)(x, y);
   for (int i = 0; i < 8; i++) {
-    mod_cost += cell.probabilities[i] * (1 - cos(alpha - (i * M_PI / 4)));
+    mod_cost += (cell.probabilities[i] * 0.01)* (1 - cos(alpha - (i * M_PI / 4)));
   }
   return mod_cost;
 }

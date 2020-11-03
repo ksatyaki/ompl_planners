@@ -58,7 +58,7 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
   // STATE SPACE SETUP         //
   // ************************* //
   ob::StateSpacePtr space(
-      new ob::ReedsSheppStateSpace(vehicle_params_.turning_radius));
+      new ob::DubinsStateSpace(vehicle_params_.turning_radius));
   ss = boost::make_shared<og::SimpleSetup>(space);
 
   ob::RealVectorBounds bounds(2);

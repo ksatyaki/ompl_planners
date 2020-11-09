@@ -128,8 +128,8 @@ ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost(
       cost_c = this->identityCost().value();
     }
 
-    total_cost += (weight_d_ * cost_d) + (weight_q_ * cost_q) +
-                  (weight_c_ * cost_c);
+    total_cost +=
+        (weight_d_ * cost_d) + (weight_q_ * cost_q) + (weight_c_ * cost_c);
     this->last_cost_.cost_c_ += cost_c;
     this->last_cost_.cost_d_ += cost_d;
     this->last_cost_.cost_q_ += cost_q;
@@ -145,7 +145,8 @@ double ompl::mod::UpstreamCriterionOptimizationObjective::getSTeFMapCost(
 
   const stefmap_ros::STeFMapCell &cell = (*stefmap)(x, y);
   for (int i = 0; i < 8; i++) {
-    mod_cost += (cell.probabilities[i] * 0.01)* (1 - cos(alpha - (i * M_PI / 4)));
+    mod_cost +=
+        (cell.probabilities[i] * 0.01) * (1 - cos(alpha - (i * M_PI / 4)));
   }
   return mod_cost;
 }
@@ -156,12 +157,15 @@ double ompl::mod::UpstreamCriterionOptimizationObjective::getGMMTMapCost(
   auto dists = (*gmmtmap)(x, y);
 
   for (const auto &dist : dists) {
-    double beta = atan2(dist.first.get<1>(), dist.first.get<0>());
+    double mixing_factor = gmmtmap->getMixingFactorByClusterID(dist.second[0]);
+    double dist_heading = gmmtmap->getHeadingAtDist(dist.second[0], dist.second[1]);
+    
     double distance_between_gmmtmap_mean_and_current_state_xy =
         boost::geometry::distance(dist.first, gmmtmap_ros::Point2D(x, y));
-    mod_cost += (1 - distance_between_gmmtmap_mean_and_current_state_xy /
+    mod_cost += mixing_factor *
+                (1 - distance_between_gmmtmap_mean_and_current_state_xy /
                          gmmtmap->getStdDev()) *
-                (1 - cos(alpha - beta));
+                (1 - cos(alpha - dist_heading));
   }
 
   return mod_cost;
@@ -173,7 +177,8 @@ double ompl::mod::UpstreamCriterionOptimizationObjective::getCLiFFMapCost(
   const cliffmap_ros::CLiFFMapLocation &cl = (*cliffmap)(x, y);
 
   for (const auto &dist : cl.distributions) {
-    mod_cost += dist.getMixingFactor() * (1 - cos(dist.getMeanHeading() - alpha));
+    mod_cost +=
+        dist.getMixingFactor() * (1 - cos(dist.getMeanHeading() - alpha));
   }
   return mod_cost;
 }

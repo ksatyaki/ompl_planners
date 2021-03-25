@@ -2,8 +2,8 @@
 Changelog for package ompl_planners_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2021-03-25)
+------------------
 * Change to dubins vehicle
 * Add utbm map
 * Add maps

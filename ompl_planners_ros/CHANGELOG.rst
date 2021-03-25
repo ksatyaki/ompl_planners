@@ -2,6 +2,17 @@
 Changelog for package ompl_planners_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Change to dubins vehicle
+* Add utbm map
+* Add maps
+* Many changes
+* Remove reverse cost
+* Some changes
+* Change k-nearest
+* Contributors: Chittaranjan S Srinivas, Chittaranjan Swaminathan
+
 1.0.0 (2019-10-02)
 ------------------
 * Add more maps

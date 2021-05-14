@@ -2,6 +2,11 @@
 Changelog for package ompl_planners_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Changes to stefmap_ros objective
+* Contributors: Chittaranjan Swaminathan
+
 2.0.0 (2021-03-25)
 ------------------
 * Change to dubins vehicle

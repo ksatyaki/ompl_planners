@@ -2,6 +2,9 @@
 Changelog for package ompl_mod_objectives
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.0.0 (2021-03-25)
 ------------------
 * Fix GMMT-map cost function errors

@@ -148,7 +148,7 @@ public:
       ob::OptimizationObjectivePtr UCOO(
           new ompl::mod::UpstreamCriterionOptimizationObjective(
               planner->ss->getSpaceInformation(),
-              stefmap_client->get(1352265000.0, 2, -45, 55, -35, 30, 1),
+              stefmap_client->get(1352265000.0, 2),
               pp.weight_d, pp.weight_q, pp.weight_c));
 
       planner->ss->setOptimizationObjective(UCOO);

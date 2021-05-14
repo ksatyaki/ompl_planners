@@ -2,8 +2,8 @@
 Changelog for package ompl_planners_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.1.0 (2021-05-14)
+------------------
 * Changes to stefmap_ros objective
 * Contributors: Chittaranjan Swaminathan
 

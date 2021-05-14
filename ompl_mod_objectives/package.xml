@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>ompl_mod_objectives</name>
-  <version>2.0.0</version>
+  <version>2.1.0</version>
   <description>This package defines optimization objectives for planning over Maps of Dynamics</description>
 
   <author email="chitt@aass.oru.se">Chittaranjan Swaminathan</author>

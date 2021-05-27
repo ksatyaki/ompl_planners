@@ -96,7 +96,7 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
   planner->setKNearest(false);
   planner->setRange(space->getMaximumExtent());
   ss->getSpaceInformation()->setStateValidityCheckingResolution(
-      grid_map_.getResolution() * 100 / space->getMaximumExtent());
+      0.1 / space->getMaximumExtent());
   ss->setPlanner(planner);
   ss->setup();
   // ss->print();

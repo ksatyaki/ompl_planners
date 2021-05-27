@@ -96,7 +96,7 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
   planner->setKNearest(false);
   planner->setRange(space->getMaximumExtent());
   ss->getSpaceInformation()->setStateValidityCheckingResolution(
-      grid_map_.getResolution() / space->getMaximumExtent());
+      grid_map_.getResolution() * 100 / space->getMaximumExtent());
   ss->setPlanner(planner);
   ss->setup();
   // ss->print();
@@ -161,6 +161,20 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
       (*path)[i].y = reals[1];
       (*path)[i].theta = reals[2];
     }
+
+    // Save last solution cost path-point-wise
+    auto space_info = ss->getSpaceInformation();
+    solution_cost.clear();
+
+    for (size_t i = 0; i < (states.size() - 1); i++) {
+      auto this_cost =
+          ss->getOptimizationObjective()->motionCost(states[i], states[i + 1]);
+      solution_cost.push_back(
+          std::dynamic_pointer_cast<ompl::mod::MoDOptimizationObjective>(
+              ss->getOptimizationObjective())
+              ->getLastCost());
+    }
+    ROS_INFO("Solution cost size. %ld", solution_cost.size());
 
     if (this->planner_params_.publish_viz_markers) {
       ompl::base::PlannerData data(ss->getSpaceInformation());

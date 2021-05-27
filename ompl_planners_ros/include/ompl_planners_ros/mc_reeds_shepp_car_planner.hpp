@@ -31,6 +31,7 @@
 #include <ompl/geometric/planners/fmt/FMT.h>
 #include <ompl/geometric/planners/prm/PRMstar.h>
 #include <ompl/geometric/planners/rrt/RRTstar.h>
+#include <ompl/mod/objectives/MoDOptimizationObjective.h>
 
 namespace mm = mrpt::maps;
 namespace ob = ompl::base;
@@ -130,11 +131,17 @@ class MultipleCirclesReedsSheppCarPlanner {
    */
   VehicleParameters vehicle_params_;
 
+  std::vector<ompl::mod::Cost> solution_cost;
+
 public:
   /**
    * OMPL simple setup.
    */
   boost::shared_ptr<og::SimpleSetup> ss;
+
+  inline std::vector<ompl::mod::Cost> getSolutionCost() {
+    return solution_cost;
+  }
 
   /**
    * Constructor

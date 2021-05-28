@@ -19,7 +19,7 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-find_package(ompl REQUIRED)
+find_package(ompl 1.5.2 EXACT REQUIRED)
 if(OMPL_FOUND)
   MESSAGE(STATUS "Found ompl ${OMPL_VERSION} at ${OMPL_INCLUDE_DIRS}")
 endif(OMPL_FOUND)

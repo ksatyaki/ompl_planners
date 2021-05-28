@@ -16,7 +16,7 @@ add_compile_options(-Wno-ignored-attributes -fext-numeric-literals)
 
 #Depends on ompl and MRPT
 
-find_package(ompl REQUIRED)
+find_package(ompl 1.5.2 EXACT REQUIRED)
 if(OMPL_FOUND)
   MESSAGE(STATUS "Found ompl ${OMPL_VERSION} at ${OMPL_INCLUDE_DIRS}")
 endif(OMPL_FOUND)

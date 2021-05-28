@@ -18,8 +18,8 @@ DTWOptimizationObjective::DTWOptimizationObjective(
   setCostToGoHeuristic(ompl::base::goalRegionCostToGo);
 }
 
-ompl::base::Cost DTWOptimizationObjective::stateCost(
-    const ompl::base::State *s) const {
+ompl::base::Cost
+DTWOptimizationObjective::stateCost(const ompl::base::State *s) const {
   return ompl::base::Cost(0.0);
 }
 
@@ -28,8 +28,10 @@ ompl::base::Cost DTWOptimizationObjective::motionCostHeuristic(
   return motionCost(s1, s2);
 }
 
-ompl::base::Cost ompl::mod::DTWOptimizationObjective::motionCost(
-    const ompl::base::State *s1, const ompl::base::State *s2) const {
+ompl::base::Cost
+ompl::mod::DTWOptimizationObjective::motionCost2(const ompl::base::State *s1,
+                                                 const ompl::base::State *s2,
+                                                 bool print) const {
   auto space = si_->getStateSpace();
   // 1. Declare the intermediate states.
   std::vector<ompl::base::State *> intermediate_states;
@@ -65,18 +67,18 @@ ompl::base::Cost ompl::mod::DTWOptimizationObjective::motionCost(
         si_->distance(intermediate_states[i], intermediate_states[i + 1]);
 
     // 4b. Compute the quaternion distance.
-    double cost_q = (1.0 - dot*dot);
+    double cost_q = (1.0 - dot * dot);
 
     double alpha = atan2(state_b[1] - state_a[1], state_b[0] - state_a[0]);
 
     double x = state_b[0];
     double y = state_b[1];
 
-    double cost_c = whytemap.getCost(this->timestamp, x, y, alpha, max_vehicle_speed);
+    double cost_c =
+        whytemap.getCost(this->timestamp, x, y, alpha, max_vehicle_speed);
 
-
-    total_cost += (weight_d_ * cost_d) + (weight_q_ * cost_q) +
-                  (weight_c_ * cost_c);
+    total_cost +=
+        (weight_d_ * cost_d) + (weight_q_ * cost_q) + (weight_c_ * cost_c);
     this->last_cost_.cost_c_ += cost_c;
     this->last_cost_.cost_d_ += cost_d;
     this->last_cost_.cost_q_ += cost_q;
@@ -85,7 +87,6 @@ ompl::base::Cost ompl::mod::DTWOptimizationObjective::motionCost(
   si_->freeState(intermediate_states[intermediate_states.size() - 1]);
   return ompl::base::Cost(total_cost);
 }
-
 
 } // namespace mod
 } // namespace ompl

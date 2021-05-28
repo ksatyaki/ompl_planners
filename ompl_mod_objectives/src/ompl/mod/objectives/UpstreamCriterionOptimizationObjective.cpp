@@ -66,8 +66,9 @@ ompl::mod::UpstreamCriterionOptimizationObjective::motionCostHeuristic(
   return motionCost(s1, s2);
 }
 
-ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost(
-    const ompl::base::State *s1, const ompl::base::State *s2) const {
+ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost2(
+    const ompl::base::State *s1, const ompl::base::State *s2,
+    bool print) const {
   auto space = si_->getStateSpace();
   // 1. Declare the intermediate states.
   std::vector<ompl::base::State *> intermediate_states;
@@ -133,8 +134,26 @@ ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost(
     this->last_cost_.cost_c_ += cost_c;
     this->last_cost_.cost_d_ += cost_d;
     this->last_cost_.cost_q_ += cost_q;
+
+    if (print) {
+      ROS_INFO("Intermediate States: %ld", intermediate_states.size());
+      ROS_INFO("Costs: %lf, %lf, %lf", cost_d, cost_c, cost_q);
+    }
     si_->freeState(intermediate_states[i]);
   }
+
+  ROS_INFO_STREAM_THROTTLE(
+      1, "Valid Segment count: "
+             << space->validSegmentCount(s1, s2)
+             << ", length: " << space->getLongestValidSegmentLength()
+             << ", fraction: " << space->getLongestValidSegmentFraction()
+             << ", SVCR: " << si_->getStateValidityCheckingResolution()
+             << "\nDistance: " << last_cost_.cost_d_ << ", repeat: "
+             << space->getValidSegmentCountFactor() *
+                    (unsigned int)ceil(space->distance(s1, s2) /
+                                       space->getLongestValidSegmentLength())
+             << ", distance: " << space->distance(s1, s2));
+
   si_->freeState(intermediate_states[intermediate_states.size() - 1]);
   return ompl::base::Cost(total_cost);
 }
@@ -158,8 +177,9 @@ double ompl::mod::UpstreamCriterionOptimizationObjective::getGMMTMapCost(
 
   for (const auto &dist : dists) {
     double mixing_factor = gmmtmap->getMixingFactorByClusterID(dist.second[0]);
-    double dist_heading = gmmtmap->getHeadingAtDist(dist.second[0], dist.second[1]);
-    
+    double dist_heading =
+        gmmtmap->getHeadingAtDist(dist.second[0], dist.second[1]);
+
     double distance_between_gmmtmap_mean_and_current_state_xy =
         boost::geometry::distance(dist.first, gmmtmap_ros::Point2D(x, y));
     mod_cost += mixing_factor *

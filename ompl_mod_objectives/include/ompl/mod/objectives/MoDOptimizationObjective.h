@@ -77,6 +77,15 @@ public:
   inline double getLastCostC() const { return last_cost_.cost_c_; }
   inline Cost getLastCost() const { return last_cost_; }
 
+  ompl::base::Cost motionCost(const ompl::base::State *s1,
+                              const ompl::base::State *s2) const override {
+    return motionCost2(s1, s2, false);
+  }
+
+  virtual ompl::base::Cost motionCost2(const ompl::base::State *s1,
+                                       const ompl::base::State *s2,
+                                       bool print = false) const = 0;
+
   inline std::string getMapTypeStr() const {
     switch (map_type_) {
     case MapType::STeFMap:
@@ -84,7 +93,7 @@ public:
     case MapType::GMMTMap:
       return "GMMT-map";
     case MapType::CLiFFMap:
-      if(this->weight_c_ == 0.0)
+      if (this->weight_c_ == 0.0)
         return "RRTStar";
       else
         return "CLiFF-map";
@@ -100,4 +109,4 @@ public:
 typedef std::shared_ptr<MoDOptimizationObjective> MoDOptimizationObjectivePtr;
 
 } // namespace mod
-}
+} // namespace ompl

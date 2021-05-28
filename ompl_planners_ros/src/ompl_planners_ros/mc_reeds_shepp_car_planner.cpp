@@ -89,14 +89,17 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
                                              vehicle_params_.inflation_radius,
                                              x_coords_, y_coords_)));
 
+  ss->getSpaceInformation()->setStateValidityCheckingResolution(
+      this->planner_params_.path_resolution / space->getMaximumExtent());
+
   // ************************* //
   // PLANNER                   //
   // ************************* //
   auto planner = std::make_shared<og::RRTstar>(si);
   planner->setKNearest(false);
   planner->setRange(space->getMaximumExtent());
-  ss->getSpaceInformation()->setStateValidityCheckingResolution(
-      0.1 / space->getMaximumExtent());
+  // space->setLongestValidSegmentFraction(this->planner_params_.path_resolution);
+  // space->setup();
   ss->setPlanner(planner);
   ss->setup();
   // ss->print();
@@ -168,7 +171,9 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
 
     for (size_t i = 0; i < (states.size() - 1); i++) {
       auto this_cost =
-          ss->getOptimizationObjective()->motionCost(states[i], states[i + 1]);
+          std::dynamic_pointer_cast<ompl::mod::MoDOptimizationObjective>(
+              ss->getOptimizationObjective())
+              ->motionCost2(states[i], states[i + 1], true);
       solution_cost.push_back(
           std::dynamic_pointer_cast<ompl::mod::MoDOptimizationObjective>(
               ss->getOptimizationObjective())

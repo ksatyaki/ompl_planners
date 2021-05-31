@@ -44,9 +44,8 @@ public:
 
   ompl::base::Cost stateCost(const ompl::base::State *s) const override;
 
-  ompl::base::Cost motionCost2(const ompl::base::State *s1,
-                               const ompl::base::State *s2,
-                               bool print = false) const override;
+  ompl::base::Cost motionCost(const ompl::base::State *s1,
+                              const ompl::base::State *s2) const override;
 
   ompl::base::Cost
   motionCostHeuristic(const ompl::base::State *s1,

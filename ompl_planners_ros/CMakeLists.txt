@@ -16,7 +16,7 @@ add_compile_options(-Wno-ignored-attributes -fext-numeric-literals)
 
 #Depends on ompl and MRPT
 
-find_package(ompl 1.5.2 EXACT REQUIRED)
+find_package(ompl REQUIRED)
 if(OMPL_FOUND)
   MESSAGE(STATUS "Found ompl ${OMPL_VERSION} at ${OMPL_INCLUDE_DIRS}")
 endif(OMPL_FOUND)
@@ -48,6 +48,7 @@ catkin_package(
 
 add_library(ompl_planners_ros
   SHARED
+  src/ompl_planners_ros/car_state_space.cpp
   src/ompl_planners_ros/mc_reeds_shepp_car_planner.cpp
   src/ompl_planners_ros/mc_state_validity_checker.cpp
   src/ompl_planners_ros/visualization.cpp

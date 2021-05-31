@@ -27,11 +27,11 @@
 #include <nav_msgs/OccupancyGrid.h>
 
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
-#include <ompl/base/spaces/DubinsStateSpace.h>
 #include <ompl/geometric/planners/fmt/FMT.h>
 #include <ompl/geometric/planners/prm/PRMstar.h>
 #include <ompl/geometric/planners/rrt/RRTstar.h>
 #include <ompl/mod/objectives/MoDOptimizationObjective.h>
+#include "ompl_planners_ros/car_state_space.hpp"
 
 namespace mm = mrpt::maps;
 namespace ob = ompl::base;

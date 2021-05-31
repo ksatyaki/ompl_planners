@@ -58,7 +58,7 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
   // STATE SPACE SETUP         //
   // ************************* //
   ob::StateSpacePtr space(
-      new ob::DubinsStateSpace(vehicle_params_.turning_radius));
+      new ob::CarStateSpace(vehicle_params_.turning_radius));
   ss = boost::make_shared<og::SimpleSetup>(space);
 
   ob::RealVectorBounds bounds(2);
@@ -73,12 +73,20 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
     bounds.high[0] = 10000;
     bounds.high[1] = 10000;
   }
-
   space->as<ob::SE2StateSpace>()->setBounds(bounds);
+
+  ob::SpaceInformationPtr si(ss->getSpaceInformation());
+
+  // ************************* //
+  // PLANNER                   //
+  // ************************* //
+  auto planner = std::make_shared<og::RRTstar>(si);
+  planner->setKNearest(false);
+  planner->setRange(space->getMaximumExtent());
+
   // ************************* //
   // STATE VALIDITY CHECKER    //
   // ************************* //
-  ob::SpaceInformationPtr si(ss->getSpaceInformation());
 
   // Get the vertices as a vector of Xs and Ys.
   std::vector<double> x_coords_, y_coords_;
@@ -92,17 +100,9 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
   ss->getSpaceInformation()->setStateValidityCheckingResolution(
       this->planner_params_.path_resolution / space->getMaximumExtent());
 
-  // ************************* //
-  // PLANNER                   //
-  // ************************* //
-  auto planner = std::make_shared<og::RRTstar>(si);
-  planner->setKNearest(false);
-  planner->setRange(space->getMaximumExtent());
-  // space->setLongestValidSegmentFraction(this->planner_params_.path_resolution);
-  // space->setup();
   ss->setPlanner(planner);
   ss->setup();
-  // ss->print();
+  ss->print();
 
   ROS_INFO_STREAM(
       "State validity checking resolution: "
@@ -173,7 +173,7 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
       auto this_cost =
           std::dynamic_pointer_cast<ompl::mod::MoDOptimizationObjective>(
               ss->getOptimizationObjective())
-              ->motionCost2(states[i], states[i + 1], true);
+              ->motionCost(states[i], states[i + 1]);
       solution_cost.push_back(
           std::dynamic_pointer_cast<ompl::mod::MoDOptimizationObjective>(
               ss->getOptimizationObjective())

@@ -78,13 +78,7 @@ public:
   inline Cost getLastCost() const { return last_cost_; }
 
   ompl::base::Cost motionCost(const ompl::base::State *s1,
-                              const ompl::base::State *s2) const override {
-    return motionCost2(s1, s2, false);
-  }
-
-  virtual ompl::base::Cost motionCost2(const ompl::base::State *s1,
-                                       const ompl::base::State *s2,
-                                       bool print = false) const = 0;
+                              const ompl::base::State *s2) const override = 0;
 
   inline std::string getMapTypeStr() const {
     switch (map_type_) {

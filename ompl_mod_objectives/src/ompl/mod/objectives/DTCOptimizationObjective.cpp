@@ -40,10 +40,8 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::stateCost(
   return ompl::base::Cost(0.0);
 }
 
-ompl::base::Cost
-ompl::mod::DTCOptimizationObjective::motionCost2(const ompl::base::State *s1,
-                                                 const ompl::base::State *s2,
-                                                 bool print = false) const {
+ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
+    const ompl::base::State *s1, const ompl::base::State *s2) const {
   auto space = si_->getStateSpace();
   // 1. Declare the intermediate states.
   std::vector<ompl::base::State *> intermediate_states;

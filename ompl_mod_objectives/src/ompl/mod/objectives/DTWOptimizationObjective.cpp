@@ -28,10 +28,8 @@ ompl::base::Cost DTWOptimizationObjective::motionCostHeuristic(
   return motionCost(s1, s2);
 }
 
-ompl::base::Cost
-ompl::mod::DTWOptimizationObjective::motionCost2(const ompl::base::State *s1,
-                                                 const ompl::base::State *s2,
-                                                 bool print) const {
+ompl::base::Cost ompl::mod::DTWOptimizationObjective::motionCost(
+    const ompl::base::State *s1, const ompl::base::State *s2) const {
   auto space = si_->getStateSpace();
   // 1. Declare the intermediate states.
   std::vector<ompl::base::State *> intermediate_states;

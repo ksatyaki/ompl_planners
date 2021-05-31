@@ -66,9 +66,8 @@ ompl::mod::UpstreamCriterionOptimizationObjective::motionCostHeuristic(
   return motionCost(s1, s2);
 }
 
-ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost2(
-    const ompl::base::State *s1, const ompl::base::State *s2,
-    bool print) const {
+ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost(
+    const ompl::base::State *s1, const ompl::base::State *s2) const {
   auto space = si_->getStateSpace();
   // 1. Declare the intermediate states.
   std::vector<ompl::base::State *> intermediate_states;
@@ -135,14 +134,10 @@ ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost2(
     this->last_cost_.cost_d_ += cost_d;
     this->last_cost_.cost_q_ += cost_q;
 
-    if (print) {
-      ROS_INFO("Intermediate States: %ld", intermediate_states.size());
-      ROS_INFO("Costs: %lf, %lf, %lf", cost_d, cost_c, cost_q);
-    }
     si_->freeState(intermediate_states[i]);
   }
 
-  ROS_INFO_STREAM_THROTTLE(
+  /*ROS_INFO_STREAM_THROTTLE(
       1, "Valid Segment count: "
              << space->validSegmentCount(s1, s2)
              << ", length: " << space->getLongestValidSegmentLength()
@@ -153,7 +148,7 @@ ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost2(
                     (unsigned int)ceil(space->distance(s1, s2) /
                                        space->getLongestValidSegmentLength())
              << ", distance: " << space->distance(s1, s2));
-
+*/
   si_->freeState(intermediate_states[intermediate_states.size() - 1]);
   return ompl::base::Cost(total_cost);
 }

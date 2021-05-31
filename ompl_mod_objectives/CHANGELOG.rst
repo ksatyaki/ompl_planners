@@ -24,6 +24,31 @@ Changelog for package ompl_mod_objectives
 * Add Down-The-WHyTe OO and add CLiFF-map to UpsteamCriterion
 * Contributors: Chittaranjan S Srinivas, Chittaranjan Srinivas Swaminathan, Chittaranjan Swaminathan
 
+Forthcoming
+-----------
+* Revert back some changes. Add CarStateSpace
+* WIP
+* 2.1.0
+* Updated Changelogs
+* 2.0.0
+* Update Changelogs
+* Fix GMMT-map cost function errors
+* Correct STeF-map upstream cost fn
+* Small change
+* Adding mixing factor to some cost objectives
+* use parameter instead of constant value
+* Update DTCOptimizationObjective.cpp
+  Update secondary cap.
+* Add threshold to mahalanobis distance
+* Change
+* Add a std::shared_ptr typedef
+* Many changes
+* Add methods to compute cost components
+* Remove reverse cost
+* Fix description
+* Add Down-The-WHyTe OO and add CLiFF-map to UpsteamCriterion
+* Contributors: Chittaranjan S Srinivas, Chittaranjan Srinivas Swaminathan, Chittaranjan Swaminathan
+
 1.0.0 (2019-10-02)
 ------------------
 * Modify upstream criterion objective to use GMMT-map, optionally

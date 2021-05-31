@@ -18,6 +18,26 @@ Changelog for package ompl_planners_ros
 * Change k-nearest
 * Contributors: Chittaranjan S Srinivas, Chittaranjan Swaminathan
 
+Forthcoming
+-----------
+* Revert back some changes. Add CarStateSpace
+* WIP
+* Edit state validity checking resolution
+* Retrieve costs
+* 2.1.0
+* Updated Changelogs
+* Changes to stefmap_ros objective
+* 2.0.0
+* Update Changelogs
+* Change to dubins vehicle
+* Add utbm map
+* Add maps
+* Many changes
+* Remove reverse cost
+* Some changes
+* Change k-nearest
+* Contributors: Chittaranjan S Srinivas, Chittaranjan Swaminathan
+
 1.0.0 (2019-10-02)
 ------------------
 * Add more maps

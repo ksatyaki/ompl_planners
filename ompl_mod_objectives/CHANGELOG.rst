@@ -24,8 +24,8 @@ Changelog for package ompl_mod_objectives
 * Add Down-The-WHyTe OO and add CLiFF-map to UpsteamCriterion
 * Contributors: Chittaranjan S Srinivas, Chittaranjan Srinivas Swaminathan, Chittaranjan Swaminathan
 
-Forthcoming
------------
+2.1.1 (2021-05-31)
+------------------
 * Revert back some changes. Add CarStateSpace
 * WIP
 * 2.1.0

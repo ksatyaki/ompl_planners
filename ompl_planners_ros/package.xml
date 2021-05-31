@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>ompl_planners_ros</name>
-  <version>2.1.0</version>
+  <version>2.1.1</version>
   <description>The ompl_planners_ros package</description>
 
   <maintainer email="chittaranjan.swaminathan@oru.se">Chittaranjan Srinivas Swaminathan</maintainer>

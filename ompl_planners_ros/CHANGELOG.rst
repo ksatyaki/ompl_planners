@@ -18,8 +18,8 @@ Changelog for package ompl_planners_ros
 * Change k-nearest
 * Contributors: Chittaranjan S Srinivas, Chittaranjan Swaminathan
 
-Forthcoming
------------
+2.1.1 (2021-05-31)
+------------------
 * Revert back some changes. Add CarStateSpace
 * WIP
 * Edit state validity checking resolution

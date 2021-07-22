@@ -80,7 +80,7 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
   // ************************* //
   // PLANNER                   //
   // ************************* //
-  auto planner = std::make_shared<og::RRTstar>(si);
+  auto planner = std::make_shared<og::InformedRRTstar>(si);
   planner->setKNearest(false);
   planner->setRange(space->getMaximumExtent());
 

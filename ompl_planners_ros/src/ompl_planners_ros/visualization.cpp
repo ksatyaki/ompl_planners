@@ -27,8 +27,24 @@ void Visualization::publishSolutionPath(ompl::geometric::PathGeometric &sPath) {
   m.color.r = 0.2;
   m.color.g = 0.9;
   m.color.b = 0.0;
-  m.scale.x = 0.02;
+  m.scale.x = 0.2;
   for (const auto &state : sPath.getStates()) {
+    m.points.push_back(stateToPointMsg(state));
+    m.colors.push_back(m.color);
+  }
+  markers.markers.push_back(m);
+  markers_pub_.publish(markers);
+}
+
+void Visualization::publishSolutionPath(const std::vector<const ompl::base::State*> &solutionStates) {
+  visualization_msgs::MarkerArray markers;
+  visualization_msgs::Marker m;
+  setMarkerCommonProperties(&m);
+  m.color.r = 0.2;
+  m.color.g = 0.9;
+  m.color.b = 0.0;
+  m.scale.x = 0.2;
+  for (const auto &state : solutionStates) {
     m.points.push_back(stateToPointMsg(state));
     m.colors.push_back(m.color);
   }
@@ -87,8 +103,8 @@ void Visualization::setMarkerCommonProperties(
   marker->pose.orientation.z = 0.0;
   marker->pose.orientation.w = 1.0;
 
-  marker->scale.x = 0.01;
-  marker->scale.y = 0.01;
+  marker->scale.x = 0.04;
+  marker->scale.y = 0.02;
 
   // TODO: Customizable?
   marker->color.r = 0.3;

@@ -28,16 +28,16 @@
 namespace ompl_planners_ros {
 
 class Visualization {
- protected:
+protected:
   ros::NodeHandle nh_;
 
   ros::Publisher markers_pub_;
 
-  geometry_msgs::Point stateToPointMsg(const ompl::base::State* state);
+  geometry_msgs::Point stateToPointMsg(const ompl::base::State *state);
 
-  void setMarkerCommonProperties(visualization_msgs::Marker* marker);
+  void setMarkerCommonProperties(visualization_msgs::Marker *marker);
 
- public:
+public:
   Visualization() {
     markers_pub_ = nh_.advertise<visualization_msgs::MarkerArray>(
         "visualization_marker", 10);
@@ -46,13 +46,15 @@ class Visualization {
 
   virtual ~Visualization() {}
 
-  void publishMarkers(const visualization_msgs::MarkerArray& msg) {
+  void publishMarkers(const visualization_msgs::MarkerArray &msg) {
     markers_pub_.publish(msg);
   }
 
-  void publishPlanningGraph(const ompl::base::PlannerData& pData);
+  void publishPlanningGraph(const ompl::base::PlannerData &pData);
 
-  void publishSolutionPath(ompl::geometric::PathGeometric& sPath);
+  void publishSolutionPath(ompl::geometric::PathGeometric &sPath);
+  void publishSolutionPath(
+      const std::vector<const ompl::base::State *> &solutionStates);
 };
 
 } /* namespace ompl_planners_ros */

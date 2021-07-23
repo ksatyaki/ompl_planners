@@ -137,18 +137,6 @@ ompl::base::Cost ompl::mod::UpstreamCriterionOptimizationObjective::motionCost(
     si_->freeState(intermediate_states[i]);
   }
 
-  /*ROS_INFO_STREAM_THROTTLE(
-      1, "Valid Segment count: "
-             << space->validSegmentCount(s1, s2)
-             << ", length: " << space->getLongestValidSegmentLength()
-             << ", fraction: " << space->getLongestValidSegmentFraction()
-             << ", SVCR: " << si_->getStateValidityCheckingResolution()
-             << "\nDistance: " << last_cost_.cost_d_ << ", repeat: "
-             << space->getValidSegmentCountFactor() *
-                    (unsigned int)ceil(space->distance(s1, s2) /
-                                       space->getLongestValidSegmentLength())
-             << ", distance: " << space->distance(s1, s2));
-*/
   si_->freeState(intermediate_states[intermediate_states.size() - 1]);
   return ompl::base::Cost(total_cost);
 }
@@ -157,8 +145,8 @@ double ompl::mod::UpstreamCriterionOptimizationObjective::getSTeFMapCost(
     double x, double y, double alpha) const {
   double mod_cost = 0.0;
 
-  const stefmap_ros::STeFMapCell &cell = (*stefmap)(x, y);
-  for (int i = 0; i < 8; i++) {
+  const stefmap_ros::STeFMapCellMsg &cell = (*stefmap)(x, y);
+  for (int i = 0; i < cell.probabilities.size(); i++) {
     mod_cost +=
         (cell.probabilities[i] * 0.01) * (1 - cos(alpha - (i * M_PI / 4)));
   }

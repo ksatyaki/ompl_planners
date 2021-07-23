@@ -180,14 +180,6 @@ bool MultipleCirclesReedsSheppCarPlanner::plan(
               ->getLastCost());
     }
     ROS_INFO("Solution cost size. %ld", solution_cost.size());
-
-    if (this->planner_params_.publish_viz_markers) {
-      ompl::base::PlannerData data(ss->getSpaceInformation());
-      ss->getPlanner()->getPlannerData(data);
-      viz.publishPlanningGraph(data);
-      viz.publishSolutionPath(pth);
-    }
-
     return 1;
   }
   ROS_WARN_STREAM("\x1b[93mNo solution found");

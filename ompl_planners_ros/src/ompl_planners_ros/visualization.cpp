@@ -25,8 +25,8 @@ void Visualization::publishSolutionPath(ompl::geometric::PathGeometric &sPath) {
   visualization_msgs::Marker m;
   setMarkerCommonProperties(&m);
   m.color.r = 0.2;
-  m.color.g = 0.9;
-  m.color.b = 0.0;
+  m.color.g = 0.0;
+  m.color.b = 0.9;
   m.scale.x = 0.2;
   for (const auto &state : sPath.getStates()) {
     m.points.push_back(stateToPointMsg(state));

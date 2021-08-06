@@ -16,25 +16,21 @@
  *   along with ompl_planners_ros.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <Eigen/Dense>
-#include <array>
-#include <functional>
-
-#include <cliffmap_ros/cliffmap.hpp>
-
 #include <ompl/mod/objectives/MoDOptimizationObjective.h>
 
+#include <Eigen/Dense>
+#include <array>
+#include <cliffmap_ros/cliffmap.hpp>
+#include <functional>
+
 namespace ompl {
-
 namespace mod {
-
 /**
  * The optimization objective class for DownTheCLiFF cost.
  * This is a multi-optimization objective but doens't derive from the
  * corresponding OMPL class.
  */
 class DTCOptimizationObjective : public MoDOptimizationObjective {
-
   /// Maximum vehicle speed used in the computation of Down-The-CLiFF cost.
   double max_vehicle_speed;
 
@@ -47,7 +43,7 @@ class DTCOptimizationObjective : public MoDOptimizationObjective {
   /// A std smart pointer to the CLiFFMap.
   cliffmap_ros::CLiFFMap cliffmap;
 
-public:
+ public:
   /**
    * Constructor
    * @param si SpaceInformationPtr that we get from the problem setup.
@@ -67,14 +63,16 @@ public:
   ompl::base::Cost motionCost(const ompl::base::State *s1,
                               const ompl::base::State *s2) const override;
 
-  inline void
-  setMahalanobisDistanceThreshold(double mahalanobis_distance_threshold) {
+  inline void setMahalanobisDistanceThreshold(
+      double mahalanobis_distance_threshold) {
     this->mahalanobis_distance_threshold = mahalanobis_distance_threshold;
   }
 
-  ompl::base::Cost
-  motionCostHeuristic(const ompl::base::State *s1,
-                      const ompl::base::State *s2) const override;
+  ompl::base::Cost motionCostHeuristic(
+      const ompl::base::State *s1, const ompl::base::State *s2) const override;
 };
-} // namespace mod
-} // namespace ompl
+
+typedef std::shared_ptr<DTCOptimizationObjective> DTCOptimizationObjectivePtr;
+
+}  // namespace mod
+}  // namespace ompl

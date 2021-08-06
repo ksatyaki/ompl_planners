@@ -18,9 +18,10 @@
 
 #pragma once
 
+#include <ompl/mod/objectives/MoDOptimizationObjective.h>
+
 #include <cliffmap_ros/cliffmap.hpp>
 #include <gmmtmap_ros/gmmtmap.hpp>
-#include <ompl/mod/objectives/MoDOptimizationObjective.h>
 #include <stefmap_ros/stefmap.hpp>
 
 namespace ompl {
@@ -28,14 +29,13 @@ namespace mod {
 
 class UpstreamCriterionOptimizationObjective
     : public ompl::mod::MoDOptimizationObjective {
-
   stefmap_ros::STeFMapPtr stefmap;
 
   gmmtmap_ros::GMMTMapPtr gmmtmap;
 
   cliffmap_ros::CLiFFMapPtr cliffmap;
 
-public:
+ public:
   UpstreamCriterionOptimizationObjective(
       const ompl::base::SpaceInformationPtr &si,
       const stefmap_ros::STeFMap &stefmap, float wd, float wq, float wc);
@@ -61,12 +61,14 @@ public:
 
   double getCLiFFMapCost(double x, double y, double alpha) const;
 
-  ompl::base::Cost
-  motionCostHeuristic(const ompl::base::State *s1,
-                      const ompl::base::State *s2) const override;
+  ompl::base::Cost motionCostHeuristic(
+      const ompl::base::State *s1, const ompl::base::State *s2) const override;
 
   virtual ~UpstreamCriterionOptimizationObjective() {}
 };
+
+typedef std::shared_ptr<UpstreamCriterionOptimizationObjective>
+    UpstreamCriterionOptimizationObjectivePtr;
 
 } /* namespace mod */
 } /* namespace ompl */

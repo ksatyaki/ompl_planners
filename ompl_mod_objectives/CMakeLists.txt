@@ -51,6 +51,7 @@ catkin_package(
 
 add_library(ompl_mod_objectives
   SHARED
+  src/ompl/mod/objectives/IntensityMapOptimizationObjective.cpp
   src/ompl/mod/objectives/DTCOptimizationObjective.cpp
   src/ompl/mod/objectives/UpstreamCriterionOptimizationObjective.cpp
   src/ompl/mod/objectives/DTWOptimizationObjective.cpp include/ompl/mod/objectives/DTWOptimizationObjective.h)

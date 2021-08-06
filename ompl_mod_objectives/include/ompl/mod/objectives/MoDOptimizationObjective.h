@@ -28,6 +28,7 @@ enum class MapType {
   STeFMap = 1,
   GMMTMap = 2,
   WHyTeMap = 3,
+  IntensityMap = 4,
   NOTSET = 101
 };
 
@@ -51,7 +52,7 @@ struct Cost {
 };
 
 class MoDOptimizationObjective : public ompl::base::OptimizationObjective {
-protected:
+ protected:
   /// The weight associated with Euclidean distance cost.
   double weight_d_;
 
@@ -68,10 +69,13 @@ protected:
   inline MoDOptimizationObjective(const ompl::base::SpaceInformationPtr &si,
                                   double weight_d, double weight_q,
                                   double weight_c, MapType map_type)
-      : ompl::base::OptimizationObjective(si), weight_d_(weight_d),
-        weight_q_(weight_q), weight_c_(weight_c), map_type_(map_type) {}
+      : ompl::base::OptimizationObjective(si),
+        weight_d_(weight_d),
+        weight_q_(weight_q),
+        weight_c_(weight_c),
+        map_type_(map_type) {}
 
-public:
+ public:
   inline double getLastCostD() const { return last_cost_.cost_d_; }
   inline double getLastCostQ() const { return last_cost_.cost_q_; }
   inline double getLastCostC() const { return last_cost_.cost_c_; }
@@ -81,26 +85,28 @@ public:
                               const ompl::base::State *s2) const override = 0;
 
   inline std::string getMapTypeStr() const {
-    switch (map_type_) {
-    case MapType::STeFMap:
-      return "STeF-map";
-    case MapType::GMMTMap:
-      return "GMMT-map";
-    case MapType::CLiFFMap:
-      if (this->weight_c_ == 0.0)
-        return "RRTStar";
-      else
-        return "CLiFF-map";
-    case MapType::WHyTeMap:
-      return "WHyTe-map";
-    default:
-      return "Not set.";
-    }
+    if (this->weight_c_ == 0.0)
+      return "RRTStar";
+    else
+      switch (map_type_) {
+        case MapType::STeFMap:
+          return "STeF-map";
+        case MapType::GMMTMap:
+          return "GMMT-map";
+        case MapType::CLiFFMap:
+          return "CLiFF-map";
+        case MapType::WHyTeMap:
+          return "WHyTe-map";
+        case MapType::IntensityMap:
+          return "intensity-map";
+        default:
+          return "Not set.";
+      }
   }
   inline MapType getMapType() const { return map_type_; }
 };
 
 typedef std::shared_ptr<MoDOptimizationObjective> MoDOptimizationObjectivePtr;
 
-} // namespace mod
-} // namespace ompl
+}  // namespace mod
+}  // namespace ompl

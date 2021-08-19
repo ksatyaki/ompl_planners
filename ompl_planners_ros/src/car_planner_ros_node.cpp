@@ -16,6 +16,8 @@
  *   along with ompl_planners_ros.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <fstream>
+
 #include <ros/console.h>
 #include <ros/ros.h>
 

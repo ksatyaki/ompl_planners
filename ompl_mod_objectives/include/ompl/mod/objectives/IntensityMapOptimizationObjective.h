@@ -58,7 +58,6 @@ class IntensityMap {
   inline double operator()(double x, double y) const {
     size_t row = size_t(std::floor(y - this->y_min_) / this->cell_size_);
     size_t col = size_t(std::floor(x - this->x_min_) / this->cell_size_);
-    std::cout << "Row, Col: " << row << ", " << col << std::endl;
     return this->values_[row * this->columns_ + col];
   }
 };

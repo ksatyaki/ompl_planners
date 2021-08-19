@@ -21,7 +21,7 @@ if(OMPL_FOUND)
   MESSAGE(STATUS "Found ompl ${OMPL_VERSION} at ${OMPL_INCLUDE_DIRS}")
 endif(OMPL_FOUND)
 
-find_package(MRPT REQUIRED)
+find_package(MRPT REQUIRED COMPONENTS math maps)
 
 find_package(catkin REQUIRED
   COMPONENTS

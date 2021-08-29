@@ -23,10 +23,10 @@
 namespace ompl {
 namespace base {
 class CarStateSpace : public ompl::base::DubinsStateSpace {
-public:
+ public:
   CarStateSpace(double turning_radius, bool is_symmetric = true);
   unsigned int validSegmentCount(const State *state1,
                                  const State *state2) const override;
 };
-} // namespace base
-} // namespace ompl
+}  // namespace base
+}  // namespace ompl

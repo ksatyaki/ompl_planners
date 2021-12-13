@@ -35,9 +35,15 @@ void IntensityMap::readFromXML(const std::string &fileName) {
   this->values_.resize(this->rows_ * this->columns_);
 
   for (const auto &cell : pTree.get_child("map.cells")) {
-    this->values_[cell.second.get<size_t>("row") * this->columns_ +
-                  cell.second.get<size_t>("col")] =
-        cell.second.get<double>("value");
+    if (cell.second.get<size_t>("row") * this->columns_ +
+        cell.second.get<size_t>("col") < this->rows_ * this->columns_) {
+      this->values_[cell.second.get<size_t>("row") * this->columns_ +
+                    cell.second.get<size_t>("col")] =
+          cell.second.get<double>("value");
+    }
+    else {
+      printf("OOPS!\n");
+    }
   }
 }
 
@@ -45,8 +51,8 @@ IntensityMapOptimizationObjective::IntensityMapOptimizationObjective(
     const ompl::base::SpaceInformationPtr &si, const std::string &file_name,
     double wd, double wq, double wc)
     : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc,
-                                          MapType::IntensityMap),
-      intensity_map_(file_name) {
+                                          MapType::IntensityMap) {
+  this->intensity_map_ = IntensityMap(file_name);
   description_ = "Intensity Cost";
   // Setup a default cost-to-go heuristic:
   setCostToGoHeuristic(ompl::base::goalRegionCostToGo);

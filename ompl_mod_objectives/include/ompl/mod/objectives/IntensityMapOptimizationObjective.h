@@ -40,6 +40,7 @@ class IntensityMap {
   void readFromXML(const std::string &fileName);
 
  public:
+  inline IntensityMap() = default;
   inline IntensityMap(const std::string &fileName) {
     this->readFromXML(fileName);
   }

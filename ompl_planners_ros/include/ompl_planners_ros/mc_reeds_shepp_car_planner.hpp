@@ -30,7 +30,7 @@
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/geometric/planners/fmt/FMT.h>
 #include <ompl/geometric/planners/prm/PRMstar.h>
-#include <ompl/geometric/planners/rrt/InformedRRTstar.h>
+#include <ompl/geometric/planners/rrt/RRTstar.h>
 #include <ompl/mod/objectives/MoDOptimizationObjective.h>
 
 namespace mm = mrpt::maps;

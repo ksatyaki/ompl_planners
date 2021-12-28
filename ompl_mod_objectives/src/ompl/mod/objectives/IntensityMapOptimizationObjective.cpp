@@ -41,9 +41,6 @@ void IntensityMap::readFromXML(const std::string &fileName) {
                     cell.second.get<size_t>("col")] =
           cell.second.get<double>("value");
     }
-    else {
-      printf("OOPS!\n");
-    }
   }
 }
 

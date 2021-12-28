@@ -115,6 +115,76 @@ MultipleCirclesReedsSheppCarPlanner::MultipleCirclesReedsSheppCarPlanner(
   ROS_INFO_STREAM("MCRSCP is ready to take goals.");
 }
 
+boost::shared_ptr<og::SimpleSetup>
+MultipleCirclesReedsSheppCarPlanner::generateSimpleSetup(
+    const PlannerParameters &planner_params,
+    const VehicleParameters &vehicle_params,
+    const nav_msgs::OccupancyGridConstPtr &occ_map_ptr) {
+  mm::COccupancyGridMap2D grid_map_temp;
+  grid_map_temp.setSize(
+      occ_map_ptr->info.origin.position.x,
+      occ_map_ptr->info.origin.position.x +
+          (occ_map_ptr->info.width * occ_map_ptr->info.resolution),
+      occ_map_ptr->info.origin.position.y,
+      occ_map_ptr->info.origin.position.y +
+          (occ_map_ptr->info.height * occ_map_ptr->info.resolution),
+      occ_map_ptr->info.resolution);
+
+  for (int h = 0; h < occ_map_ptr->info.height; h++) {
+    for (int w = 0; w < occ_map_ptr->info.width; w++) {
+      float value = -1.0f;
+      const int8_t &occ_map_value =
+          occ_map_ptr->data[w + h * occ_map_ptr->info.width];
+      if (occ_map_value <= 100) {
+        value = 1.0f - (float)occ_map_value / 100.0f;
+      } else if (occ_map_value == -1) {
+        value = -1.0f;
+      } else {
+        std::cerr << "[ERROR]: Converting nav_msgs::OccupancyGrid to "
+                     "mrpt::maps::COccupancyGridMap2D. Saw an unknown value in "
+                     "data: "
+                  << occ_map_value << "\n";
+      }
+      grid_map_temp.setCell(w, h, value);
+    }
+  }
+
+  // ************************* //
+  // STATE SPACE SETUP         //
+  // ************************* //
+  ob::StateSpacePtr space(new ob::CarStateSpace(vehicle_params.turning_radius));
+  boost::shared_ptr<og::SimpleSetup> ss_t =
+      boost::make_shared<og::SimpleSetup>(space);
+
+  ob::RealVectorBounds bounds(2);
+  bounds.low[0] = grid_map_temp.getXMin();
+  bounds.low[1] = grid_map_temp.getYMin();
+  bounds.high[0] = grid_map_temp.getXMax();
+  bounds.high[1] = grid_map_temp.getYMax();
+
+  space->as<ob::SE2StateSpace>()->setBounds(bounds);
+
+  ob::SpaceInformationPtr si(ss_t->getSpaceInformation());
+
+  // ************************* //
+  // STATE VALIDITY CHECKER    //
+  // ************************* //
+
+  // Get the vertices as a vector of Xs and Ys.
+  std::vector<double> x_coords_, y_coords_;
+  vehicle_params.footprint.getAllVertices(x_coords_, y_coords_);
+
+  si->setStateValidityChecker(
+      ob::StateValidityCheckerPtr(new MultipleCircleStateValidityChecker(
+          si, grid_map_temp, vehicle_params.inflation_radius, x_coords_,
+          y_coords_)));
+
+  ss_t->getSpaceInformation()->setStateValidityCheckingResolution(
+      planner_params.path_resolution / space->getMaximumExtent());
+
+  return ss_t;
+}
+
 bool MultipleCirclesReedsSheppCarPlanner::plan(
     const geometry_msgs::Pose2D &startState,
     const geometry_msgs::Pose2D &goalState,

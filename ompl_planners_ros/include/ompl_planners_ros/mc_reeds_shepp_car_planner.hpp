@@ -26,12 +26,12 @@
 #include <geometry_msgs/Pose2D.h>
 #include <nav_msgs/OccupancyGrid.h>
 
+#include "ompl_planners_ros/car_state_space.hpp"
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/geometric/planners/fmt/FMT.h>
 #include <ompl/geometric/planners/prm/PRMstar.h>
 #include <ompl/geometric/planners/rrt/RRTstar.h>
 #include <ompl/mod/objectives/MoDOptimizationObjective.h>
-#include "ompl_planners_ros/car_state_space.hpp"
 
 namespace mm = mrpt::maps;
 namespace ob = ompl::base;
@@ -142,6 +142,17 @@ public:
   inline std::vector<ompl::mod::Cost> getSolutionCost() {
     return solution_cost;
   }
+
+  /**
+   * @return A simple setup
+   * @param planner_params The planning parameters
+   * @param vehicle_params The vehicle parameters
+   * @param occ_map_ptr A ConstPtr to the occupancy map
+   */
+  static boost::shared_ptr<og::SimpleSetup>
+  generateSimpleSetup(const PlannerParameters &planner_params,
+                      const VehicleParameters &vehicle_params,
+                      const nav_msgs::OccupancyGridConstPtr &occ_map_ptr);
 
   /**
    * Constructor

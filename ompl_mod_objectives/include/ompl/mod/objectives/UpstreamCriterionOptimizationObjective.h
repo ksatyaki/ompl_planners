@@ -35,7 +35,7 @@ class UpstreamCriterionOptimizationObjective
 
   cliffmap_ros::CLiFFMapPtr cliffmap;
 
- public:
+public:
   UpstreamCriterionOptimizationObjective(
       const ompl::base::SpaceInformationPtr &si,
       const stefmap_ros::STeFMap &stefmap, float wd, float wq, float wc);
@@ -48,7 +48,12 @@ class UpstreamCriterionOptimizationObjective
       const ompl::base::SpaceInformationPtr &si,
       const cliffmap_ros::CLiFFMap &cliffmap, double wd, double wq, double wc);
 
-  virtual inline bool isSymmetric() const override { return false; }
+  UpstreamCriterionOptimizationObjective(
+      const ompl::base::SpaceInformationPtr &si,
+      const ompl::mod::MapType &map_type, const std::string &map_file_name,
+      float wd, float wq, float wc);
+
+  inline bool isSymmetric() const override { return false; }
 
   ompl::base::Cost stateCost(const ompl::base::State *s) const override;
 
@@ -61,10 +66,11 @@ class UpstreamCriterionOptimizationObjective
 
   double getCLiFFMapCost(double x, double y, double alpha) const;
 
-  ompl::base::Cost motionCostHeuristic(
-      const ompl::base::State *s1, const ompl::base::State *s2) const override;
+  ompl::base::Cost
+  motionCostHeuristic(const ompl::base::State *s1,
+                      const ompl::base::State *s2) const override;
 
-  virtual ~UpstreamCriterionOptimizationObjective() {}
+  ~UpstreamCriterionOptimizationObjective() override {}
 };
 
 typedef std::shared_ptr<UpstreamCriterionOptimizationObjective>

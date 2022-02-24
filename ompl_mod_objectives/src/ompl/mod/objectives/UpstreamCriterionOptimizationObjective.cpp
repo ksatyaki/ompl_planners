@@ -22,6 +22,25 @@
 ompl::mod::UpstreamCriterionOptimizationObjective::
     UpstreamCriterionOptimizationObjective(
         const ompl::base::SpaceInformationPtr &si,
+        const ompl::mod::MapType &map_type, const std::string &map_file_name,
+        float wd, float wq, float wc)
+    : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, map_type) {
+  if (map_type == MapType::CLiFFMap) {
+    cliffmap = std::make_shared <cliffmap_ros::CLiFFMap>(map_file_name);
+    description_ = "Upstream Cost over CLiFF-map";
+  } else if (map_type == MapType::GMMTMap) {
+    gmmtmap = std::make_shared <gmmtmap_ros::GMMTMap>(map_file_name);
+    description_ = "Upstream Cost over GMMT-map";
+  } else {
+    ROS_WARN("Only GMMT and CLiFF map are supported when using "
+             "UpstreamCriterion using a map file name.");
+  }
+  setCostToGoHeuristic(ompl::base::goalRegionCostToGo);
+}
+
+ompl::mod::UpstreamCriterionOptimizationObjective::
+    UpstreamCriterionOptimizationObjective(
+        const ompl::base::SpaceInformationPtr &si,
         const stefmap_ros::STeFMap &stefmap, float wd, float wq, float wc)
     : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::STeFMap),
       stefmap(new stefmap_ros::STeFMap(stefmap)) {

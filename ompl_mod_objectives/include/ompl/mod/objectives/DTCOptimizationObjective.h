@@ -54,9 +54,15 @@ class DTCOptimizationObjective : public MoDOptimizationObjective {
                            double mahalanobis_distance_threshold = 10.0,
                            bool use_mixing_factor = true);
 
-  virtual ~DTCOptimizationObjective() = default;
+  DTCOptimizationObjective(const ompl::base::SpaceInformationPtr &si,
+                           const std::string &cliffmap_file_name, double wd,
+                           double wq, double wc, double maxvs,
+                           double mahalanobis_distance_threshold = 10.0,
+                           bool use_mixing_factor = true);
 
-  virtual bool isSymmetric() const override { return false; }
+  ~DTCOptimizationObjective() override = default;
+
+  bool isSymmetric() const override { return false; }
 
   ompl::base::Cost stateCost(const ompl::base::State *s) const override;
 

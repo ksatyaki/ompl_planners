@@ -14,6 +14,7 @@ IntensityMap::IntensityMap(const IntensityMap &intensityMap) {
   this->x_max_ = intensityMap.x_max_;
   this->y_max_ = intensityMap.y_max_;
   this->x_min_ = intensityMap.x_min_;
+  this->y_min_ = intensityMap.y_min_;
   this->cell_size_ = intensityMap.cell_size_;
   this->values_ = intensityMap.values_;
 }

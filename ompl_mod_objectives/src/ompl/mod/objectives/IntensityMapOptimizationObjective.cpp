@@ -29,8 +29,8 @@ void IntensityMap::readFromXML(const std::string &fileName) {
   this->x_max_ = pTree.get<double>("map.parameters.x_max");
   this->y_max_ = pTree.get<double>("map.parameters.y_max");
   this->cell_size_ = pTree.get<double>("map.parameters.cell_size");
-  this->rows_ = ((this->y_max_ - this->y_min_) / this->cell_size_) + 1;
-  this->columns_ = ((this->x_max_ - this->x_min_) / this->cell_size_) + 1;
+  this->rows_ = size_t((this->y_max_ - this->y_min_) / this->cell_size_) + 1;
+  this->columns_ = size_t((this->x_max_ - this->x_min_) / this->cell_size_) + 1;
 
   this->values_.resize(this->rows_ * this->columns_);
 

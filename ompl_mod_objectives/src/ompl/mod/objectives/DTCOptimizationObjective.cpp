@@ -24,6 +24,21 @@
 
 ompl::mod::DTCOptimizationObjective::DTCOptimizationObjective(
     const ompl::base::SpaceInformationPtr &si,
+    const cliffmap_ros::CLiFFMap &cliffmap,
+    const std::string &intensity_map_file_name, double wd, double wq, double wc,
+    double maxvs, double mahalanobis_distance_threshold, bool use_mixing_factor)
+    : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::CLiFFMap),
+      max_vehicle_speed(maxvs), cliffmap(cliffmap),
+      intensity_map(intensity_map_file_name),
+      mahalanobis_distance_threshold(mahalanobis_distance_threshold),
+      use_mixing_factor(use_mixing_factor) {
+  description_ = "DownTheCLiFF*Q Cost";
+  this->use_intensity = true;
+  setCostToGoHeuristic(ompl::base::goalRegionCostToGo);
+}
+
+ompl::mod::DTCOptimizationObjective::DTCOptimizationObjective(
+    const ompl::base::SpaceInformationPtr &si,
     const cliffmap_ros::CLiFFMap &cliffmap, double wd, double wq, double wc,
     double maxvs, double mahalanobis_distance_threshold, bool use_mixing_factor)
     : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::CLiFFMap),
@@ -100,6 +115,7 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
     const cliffmap_ros::CLiFFMapLocation &cl = cliffmap(x, y);
     double trust = cl.p * cl.q;
 
+    double q_value = intensity_map(x, y);
     for (const auto &dist : cl.distributions) {
       Eigen::Matrix2d Sigma;
       std::array<double, 4> sigma_array = dist.getCovariance();
@@ -136,6 +152,9 @@ ompl::base::Cost ompl::mod::DTCOptimizationObjective::motionCost(
 
       cost_c += inc_cost;
     }
+
+    if (use_intensity)
+      cost_c = cost_c * q_value;
 
     total_cost +=
         (weight_d_ * cost_d) + (weight_q_ * cost_q) + (weight_c_ * cost_c);

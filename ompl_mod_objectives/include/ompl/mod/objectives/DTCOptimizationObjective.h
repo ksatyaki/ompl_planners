@@ -43,7 +43,11 @@ class DTCOptimizationObjective : public MoDOptimizationObjective {
   /// A std smart pointer to the CLiFFMap.
   cliffmap_ros::CLiFFMap cliffmap;
 
- public:
+  cliffmap_ros::IntensityMap intensity_map;
+
+  bool use_intensity{false};
+
+public:
   /**
    * Constructor
    * @param si SpaceInformationPtr that we get from the problem setup.
@@ -51,6 +55,13 @@ class DTCOptimizationObjective : public MoDOptimizationObjective {
   DTCOptimizationObjective(const ompl::base::SpaceInformationPtr &si,
                            const cliffmap_ros::CLiFFMap &cliffmap, double wd,
                            double wq, double wc, double maxvs,
+                           double mahalanobis_distance_threshold = 10.0,
+                           bool use_mixing_factor = true);
+
+  DTCOptimizationObjective(const ompl::base::SpaceInformationPtr &si,
+                           const cliffmap_ros::CLiFFMap &cliffmap,
+                           const std::string &intensity_map_file_name,
+                           double wd, double wq, double wc, double maxvs,
                            double mahalanobis_distance_threshold = 10.0,
                            bool use_mixing_factor = true);
 
@@ -64,21 +75,24 @@ class DTCOptimizationObjective : public MoDOptimizationObjective {
 
   bool isSymmetric() const override { return false; }
 
+  void setUseIntensityInformation() { use_intensity = true; }
+
   ompl::base::Cost stateCost(const ompl::base::State *s) const override;
 
   ompl::base::Cost motionCost(const ompl::base::State *s1,
                               const ompl::base::State *s2) const override;
 
-  inline void setMahalanobisDistanceThreshold(
-      double mahalanobis_distance_threshold) {
+  inline void
+  setMahalanobisDistanceThreshold(double mahalanobis_distance_threshold) {
     this->mahalanobis_distance_threshold = mahalanobis_distance_threshold;
   }
 
-  ompl::base::Cost motionCostHeuristic(
-      const ompl::base::State *s1, const ompl::base::State *s2) const override;
+  ompl::base::Cost
+  motionCostHeuristic(const ompl::base::State *s1,
+                      const ompl::base::State *s2) const override;
 };
 
 typedef std::shared_ptr<DTCOptimizationObjective> DTCOptimizationObjectivePtr;
 
-}  // namespace mod
-}  // namespace ompl
+} // namespace mod
+} // namespace ompl

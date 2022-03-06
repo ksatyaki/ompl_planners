@@ -26,10 +26,10 @@ ompl::mod::UpstreamCriterionOptimizationObjective::
         float wd, float wq, float wc)
     : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, map_type) {
   if (map_type == MapType::CLiFFMap) {
-    cliffmap = std::make_shared <cliffmap_ros::CLiFFMap>(map_file_name);
+    cliffmap = std::make_shared<cliffmap_ros::CLiFFMap>(map_file_name);
     description_ = "Upstream Cost over CLiFF-map";
   } else if (map_type == MapType::GMMTMap) {
-    gmmtmap = std::make_shared <gmmtmap_ros::GMMTMap>(map_file_name);
+    gmmtmap = std::make_shared<gmmtmap_ros::GMMTMap>(map_file_name);
     description_ = "Upstream Cost over GMMT-map";
   } else {
     ROS_WARN("Only GMMT and CLiFF map are supported when using "
@@ -70,6 +70,22 @@ ompl::mod::UpstreamCriterionOptimizationObjective::
       cliffmap(new cliffmap_ros::CLiFFMap(cliffmap)) {
   description_ = "Upstream Cost over CLiFF-map";
 
+  // Setup a default cost-to-go heuristic:
+  setCostToGoHeuristic(ompl::base::goalRegionCostToGo);
+}
+
+ompl::mod::UpstreamCriterionOptimizationObjective::
+    UpstreamCriterionOptimizationObjective(
+        const ompl::base::SpaceInformationPtr &si,
+        const cliffmap_ros::CLiFFMap &cliffmap,
+        const std::string &intensity_map_file_name, double wd, double wq,
+        double wc)
+    : ompl::mod::MoDOptimizationObjective(si, wd, wq, wc, MapType::CLiFFMap),
+      intensity_map(intensity_map_file_name),
+      cliffmap(new cliffmap_ros::CLiFFMap(cliffmap)) {
+  description_ = "Upstream Cost weight by Q value over CLiFF-map";
+
+  use_intensity = true;
   // Setup a default cost-to-go heuristic:
   setCostToGoHeuristic(ompl::base::goalRegionCostToGo);
 }
@@ -197,10 +213,12 @@ double ompl::mod::UpstreamCriterionOptimizationObjective::getCLiFFMapCost(
     double x, double y, double alpha) const {
   double mod_cost = 0.0;
   const cliffmap_ros::CLiFFMapLocation &cl = (*cliffmap)(x, y);
-
+  double q_value = intensity_map(x, y);
   for (const auto &dist : cl.distributions) {
     mod_cost +=
         dist.getMixingFactor() * (1 - cos(dist.getMeanHeading() - alpha));
   }
+  if (use_intensity)
+    mod_cost = mod_cost * q_value;
   return mod_cost;
 }

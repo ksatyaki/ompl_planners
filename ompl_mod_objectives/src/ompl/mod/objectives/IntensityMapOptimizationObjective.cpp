@@ -8,43 +8,6 @@
 namespace ompl {
 namespace mod {
 
-IntensityMap::IntensityMap(const IntensityMap &intensityMap) {
-  this->rows_ = intensityMap.rows_;
-  this->columns_ = intensityMap.columns_;
-  this->x_max_ = intensityMap.x_max_;
-  this->y_max_ = intensityMap.y_max_;
-  this->x_min_ = intensityMap.x_min_;
-  this->y_min_ = intensityMap.y_min_;
-  this->cell_size_ = intensityMap.cell_size_;
-  this->values_ = intensityMap.values_;
-}
-
-void IntensityMap::readFromXML(const std::string &fileName) {
-  using boost::property_tree::ptree;
-  ptree pTree;
-
-  boost::property_tree::read_xml(fileName, pTree);
-
-  this->x_min_ = pTree.get<double>("map.parameters.x_min");
-  this->y_min_ = pTree.get<double>("map.parameters.y_min");
-  this->x_max_ = pTree.get<double>("map.parameters.x_max");
-  this->y_max_ = pTree.get<double>("map.parameters.y_max");
-  this->cell_size_ = pTree.get<double>("map.parameters.cell_size");
-  this->rows_ = size_t((this->y_max_ - this->y_min_) / this->cell_size_) + 1;
-  this->columns_ = size_t((this->x_max_ - this->x_min_) / this->cell_size_) + 1;
-
-  this->values_.resize(this->rows_ * this->columns_);
-
-  for (const auto &cell : pTree.get_child("map.cells")) {
-    if (cell.second.get<size_t>("row") * this->columns_ +
-        cell.second.get<size_t>("col") < this->rows_ * this->columns_) {
-      this->values_[cell.second.get<size_t>("row") * this->columns_ +
-                    cell.second.get<size_t>("col")] =
-          cell.second.get<double>("value");
-    }
-  }
-}
-
 IntensityMapOptimizationObjective::IntensityMapOptimizationObjective(
     const ompl::base::SpaceInformationPtr &si, const std::string &file_name,
     double wd, double wq, double wc)

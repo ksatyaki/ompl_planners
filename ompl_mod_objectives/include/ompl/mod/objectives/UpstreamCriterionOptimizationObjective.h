@@ -35,6 +35,10 @@ class UpstreamCriterionOptimizationObjective
 
   cliffmap_ros::CLiFFMapPtr cliffmap;
 
+  cliffmap_ros::IntensityMap intensity_map;
+
+  bool use_intensity{false};
+
 public:
   UpstreamCriterionOptimizationObjective(
       const ompl::base::SpaceInformationPtr &si,
@@ -47,6 +51,12 @@ public:
   UpstreamCriterionOptimizationObjective(
       const ompl::base::SpaceInformationPtr &si,
       const cliffmap_ros::CLiFFMap &cliffmap, double wd, double wq, double wc);
+
+  UpstreamCriterionOptimizationObjective(
+      const ompl::base::SpaceInformationPtr &si,
+      const cliffmap_ros::CLiFFMap &cliffmap,
+      const std::string &intensity_map_file_name, double wd, double wq,
+      double wc);
 
   UpstreamCriterionOptimizationObjective(
       const ompl::base::SpaceInformationPtr &si,

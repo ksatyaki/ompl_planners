@@ -46,7 +46,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ompl_mod_objectives
   CATKIN_DEPENDS roscpp cliffmap_ros stefmap_ros gmmtmap_ros whytemap_ros
-  DEPENDS OMPL Eigen3
+  DEPENDS OMPL EIGEN3
 )
 
 add_library(ompl_mod_objectives
